@@ -1,0 +1,50 @@
+.alert {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+.alert strong { font-size: 0.95rem; }
+.info { border-color: var(--color-border-strong); }
+.success { border-color: #276a46; background: var(--color-success-surface); }
+.warning { border-color: #745019; background: var(--color-warning-surface); }
+.error { border-color: #8e4b4b; background: var(--color-danger-surface); }
+
+.skeleton {
+  display: inline-block;
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(100deg, var(--color-surface-raised) 25%, #38372f 50%, var(--color-surface-raised) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+@keyframes shimmer { to { background-position-x: -200%; } }
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.state h2, .state p { margin: 0; }
+.state h2 { font-size: 1.125rem; }
+.state p { color: var(--color-text-muted); }
+.stateIcon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  color: var(--color-accent);
+  font-weight: 800;
+}
+.errorIcon { border-color: #8e4b4b; color: var(--color-danger); }
