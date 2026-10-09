@@ -20,12 +20,12 @@ export function RequireFirstAccess() {
 export function RequirePasswordChanged() {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
-  return user.passwordChanged ? <Outlet /> : <Navigate to="/first-access" replace />
+  return user.passwordChanged ? <Outlet /> : <Navigate to="/primeiro-acesso" replace />
 }
 
 export function RequireRole({ role }: { role: AppRole }) {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
-  if (!user.passwordChanged) return <Navigate to="/first-access" replace />
+  if (!user.passwordChanged) return <Navigate to="/primeiro-acesso" replace />
   return user.role === role ? <Outlet /> : <Navigate to="/access-denied" replace />
 }

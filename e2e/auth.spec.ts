@@ -38,3 +38,29 @@ test('reload encerra a sessão sem restaurar JWT do navegador', async ({ page })
   await page.goto('/client')
   await expect(page.getByRole('heading', { name: 'Entrar na Ouvidoria' })).toBeVisible()
 })
+
+test('redefinição remove token da URL e envia somente os campos esperados', async ({ page }) => {
+  const token = 'A'.repeat(43)
+  let sentBody: unknown
+  await page.route('http://localhost:8080/api/auth/reset-password', async (route) => {
+    const request = route.request()
+    const cors = {
+      'Access-Control-Allow-Origin': 'http://127.0.0.1:5173',
+      'Access-Control-Allow-Headers': 'content-type',
+      'Access-Control-Allow-Methods': 'POST,OPTIONS',
+    }
+    if (request.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors })
+    sentBody = request.postDataJSON() as unknown
+    return route.fulfill({ status: 200, headers: cors })
+  })
+
+  await page.goto(`/reset-password?token=${token}`)
+  await expect(page.getByRole('heading', { name: 'Redefinir senha' })).toBeVisible()
+  await expect(page).toHaveURL('http://127.0.0.1:5173/reset-password')
+  await expect(page.locator('meta[name="referrer"]')).toHaveAttribute('content', 'no-referrer')
+  await page.locator('#new-password').fill('nova-senha')
+  await page.locator('#confirm-password').fill('nova-senha')
+  await page.getByRole('button', { name: 'Redefinir senha' }).click()
+  await expect(page.getByText('Senha redefinida. Entre novamente.')).toBeVisible()
+  expect(sentBody).toEqual({ token, newPassword: 'nova-senha' })
+})

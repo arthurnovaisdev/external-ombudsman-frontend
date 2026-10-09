@@ -11,6 +11,7 @@ export type AppRole = 'CLIENT' | 'ADMIN'
 
 interface AuthContextValue {
   user: UserResponseDTO | null
+  passwordChangedNotice: boolean
   login: (credentials: LoginRequestDTO) => Promise<UserResponseDTO>
   changePassword: (body: ChangePasswordRequestDTO) => Promise<void>
   logout: () => void
@@ -21,7 +22,7 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 function isAppRole(role: string): role is AppRole { return role === 'CLIENT' || role === 'ADMIN' }
 
 export function destinationFor(user: UserResponseDTO): string {
-  if (!user.passwordChanged) return '/first-access'
+  if (!user.passwordChanged) return '/primeiro-acesso'
   if (user.role === 'ADMIN') return '/admin'
   if (user.role === 'CLIENT') return '/client'
   return '/access-denied'
@@ -30,6 +31,7 @@ export function destinationFor(user: UserResponseDTO): string {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
   const [user, setUser] = useState<UserResponseDTO | null>(null)
+  const [passwordChangedNotice, setPasswordChangedNotice] = useState(false)
   const generation = useRef(0)
 
   const logout = useCallback(() => {
@@ -43,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => () => { memoryToken.clear(); queryClient.clear() }, [queryClient])
 
   const login = useCallback(async (credentials: LoginRequestDTO): Promise<UserResponseDTO> => {
+    setPasswordChangedNotice(false)
     logout()
     const attempt = ++generation.current
     const response = await authApi.login(credentials)
@@ -69,10 +72,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const changePassword = useCallback(async (body: ChangePasswordRequestDTO): Promise<void> => {
     await accountApi.changePassword(body)
     // O backend incrementa tokenVersion; o token atual deixa de ser válido.
+    setPasswordChangedNotice(true)
     logout()
   }, [logout])
 
-  return <AuthContext.Provider value={{ user, login, changePassword, logout }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, passwordChangedNotice, login, changePassword, logout }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth(): AuthContextValue {

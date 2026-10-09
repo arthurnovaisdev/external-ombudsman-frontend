@@ -15,7 +15,7 @@ export interface HttpClientConfig {
 }
 
 type Body = { kind: 'json'; value: unknown } | { kind: 'form'; value: FormData }
-type Result = 'json' | 'void' | 'blob'
+type Result = 'json' | 'void' | 'no-content' | 'blob'
 
 export class HttpClient {
   private readonly baseUrl: string
@@ -48,6 +48,10 @@ export class HttpClient {
 
   patchVoid(path: string, value?: unknown, options?: RequestOptions): Promise<void> {
     return this.send<void>('PATCH', path, 'void', value === undefined ? undefined : { kind: 'json', value }, options)
+  }
+
+  patchNoContent(path: string, value: unknown, options?: RequestOptions): Promise<void> {
+    return this.send<void>('PATCH', path, 'no-content', { kind: 'json', value }, options)
   }
 
   postFormData(path: string, value: FormData, options?: RequestOptions): Promise<void> {
@@ -91,6 +95,10 @@ export class HttpClient {
         let payload: unknown
         try { payload = JSON.parse(raw) as unknown } catch { payload = null }
         throw httpError(response.status, payload, response.headers.get('Retry-After'))
+      }
+      if (result === 'no-content') {
+        if (response.status !== 204) throw new ApiError('invalid-response', response.status)
+        return undefined as T
       }
       if (result === 'void') return undefined as T
       if (result === 'blob') return await response.blob() as T

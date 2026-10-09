@@ -4,5 +4,5 @@ import type { ChangePasswordRequestDTO, UserResponseDTO } from '../../shared/api
 export const accountApi = {
   me: (options?: RequestOptions) => httpClient.get<UserResponseDTO>('/api/users/me', options),
   changePassword: (body: ChangePasswordRequestDTO, options?: RequestOptions) =>
-    httpClient.patchVoid('/api/users/me/password', body, options),
+    httpClient.patchNoContent('/api/users/me/password', body, options),
 }

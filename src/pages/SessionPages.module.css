@@ -12,3 +12,5 @@
 .intro, .note { margin: 0; color: var(--color-text-muted); }
 .note { font-size: 0.85rem; }
 .form { display: grid; gap: var(--space-4); }
+.link { color: var(--color-accent); width: fit-content; text-underline-offset: 0.2em; }
+.link:hover { text-decoration-thickness: 0.15em; }

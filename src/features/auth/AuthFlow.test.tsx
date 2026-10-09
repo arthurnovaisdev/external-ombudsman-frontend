@@ -76,6 +76,11 @@ it('nega área administrativa a CLIENT e área do cliente a ADMIN', async () => 
 })
 
 it('bloqueia todas as áreas no primeiro acesso e encerra sessão após trocar senha', async () => {
+  let sentBody: unknown
+  server.use(http.patch('http://localhost:8080/api/users/me/password', async ({ request }) => {
+    sentBody = await request.json()
+    return new HttpResponse(null, { status: 204 })
+  }))
   renderFlow()
   const user = await enter('primeiroacesso')
   expect(await screen.findByRole('heading', { name: 'Alterar senha provisória' })).toBeInTheDocument()
@@ -90,7 +95,23 @@ it('bloqueia todas as áreas no primeiro acesso e encerra sessão após trocar s
   await user.type(screen.getByLabelText(/^Confirmar nova senha/), 'nova-senha')
   await user.click(screen.getByRole('button', { name: 'Alterar senha' }))
   expect(await screen.findByRole('heading', { name: 'Entrar na Ouvidoria' })).toBeInTheDocument()
+  expect(screen.getByText('Senha alterada. Entre novamente.')).toBeInTheDocument()
+  expect(sentBody).toEqual({ currentPassword: 'provisoria', newPassword: 'nova-senha' })
   expect(memoryToken.get()).toBeNull()
+})
+
+it('não encerra primeiro acesso se a troca de senha não retornar 204', async () => {
+  server.use(http.patch('http://localhost:8080/api/users/me/password', () => new HttpResponse(null, { status: 200 })))
+  renderFlow()
+  const user = await enter('primeiroacesso')
+  await screen.findByRole('heading', { name: 'Alterar senha provisória' })
+  await user.type(screen.getByLabelText(/^Senha atual/), 'provisoria')
+  await user.type(screen.getByLabelText(/^Nova senha/), 'nova-senha')
+  await user.type(screen.getByLabelText(/^Confirmar nova senha/), 'nova-senha')
+  await user.click(screen.getByRole('button', { name: 'Alterar senha' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('O servidor retornou uma resposta inválida.')
+  expect(screen.getByRole('heading', { name: 'Alterar senha provisória' })).toBeInTheDocument()
+  expect(memoryToken.get()).toBe('mock-first-access')
 })
 
 it('rejeita usuário desativado no login e perfil inativo retornado por /me', async () => {

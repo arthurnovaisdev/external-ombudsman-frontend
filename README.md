@@ -22,7 +22,7 @@ Copie os valores públicos de `.env.example` para a configuração local. `VITE_
 
 O backend fica em `C:\Projects\external-ombudsman`. A autenticação usa JWT no cabeçalho `Authorization: Bearer`; os perfis são `CLIENT` e `ADMIN`. O primeiro acesso limita o usuário ao próprio perfil e à troca de senha. Não há cadastro público, consulta anônima, refresh token nem logout remoto.
 
-Os tipos em `src/shared/api/contracts.ts` espelham os records do backend, incluindo os campos anuláveis. Há módulos de API para as rotas existentes de autenticação, conta, usuários, categorias, manifestações, mensagens e anexos. Apenas login, `/api/users/me` e troca de senha estão conectados às telas nesta etapa. O JWT é mantido somente por `memoryToken`; não há persistência, refresh token, cookies nem CSRF. O servidor continua sendo a autoridade sobre papéis e propriedade dos recursos.
+Os tipos em `src/shared/api/contracts.ts` espelham os records do backend, incluindo os campos anuláveis. Há módulos de API para as rotas existentes de autenticação, conta, usuários, categorias, manifestações, mensagens e anexos. Login, `/api/users/me`, troca de senha e recuperação de senha estão conectados às telas nesta etapa. O JWT é mantido somente por `memoryToken`; não há persistência, refresh token, cookies nem CSRF. O servidor continua sendo a autoridade sobre papéis e propriedade dos recursos.
 
 O cliente HTTP interpreta os dois formatos de erro do backend (`erro` e `detalhes`), classifica os status conhecidos, lê `Retry-After` como segundos inteiros válidos e aceita cancelamento e timeout. Os anexos continuam desabilitados por padrão na configuração pública; quando a interface for implementada, ela deve respeitar `VITE_ATTACHMENTS_ENABLED`. O backend também pode responder 503 para anexos desabilitados.
 
@@ -31,6 +31,8 @@ O cliente HTTP interpreta os dois formatos de erro do backend (`erro` e `detalhe
 Após `POST /api/auth/login`, o frontend usa o Bearer recebido para consultar `GET /api/users/me`. A sessão só é liberada se o perfil estiver ativo e os dados de papel/primeiro acesso coincidirem com a resposta do login. Nenhuma permissão é deduzida do conteúdo do JWT. A página recarregada perde token e usuário. Logout é local: remove token, usuário e cache do TanStack Query, sem endpoint remoto. Qualquer resposta HTTP 401 executa a mesma limpeza.
 
 As rotas públicas, autenticadas, de primeiro acesso, CLIENT e ADMIN são protegidas apenas para navegação. Primeiro acesso apresenta somente consulta ao perfil, troca de senha e saída local; a troca bem-sucedida invalida a sessão e exige novo login. O backend deve continuar validando toda requisição e propriedade de dados. As páginas `/client`, `/admin` e `/account` não simulam funcionalidades de negócio.
+
+As páginas públicas `/esqueci-senha` e `/reset-password` usam os endpoints existentes. A solicitação de recuperação envia apenas `username` e apresenta uma resposta genérica, sem indicar a existência ou o estado da conta. O token do link de redefinição é capturado na inicialização e removido da URL antes da renderização; a página aplica `no-referrer` e envia somente `token` e `newPassword`. A confirmação é local. A entrega do HTML pelo servidor de hospedagem deve manter uma política de referer igualmente restritiva, pois o frontend não controla os cabeçalhos da resposta inicial.
 
 ### Pendência: envelope paginado
 

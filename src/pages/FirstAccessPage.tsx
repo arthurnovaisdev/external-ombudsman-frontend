@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/AuthProvider'
+import { validateCurrentPassword, validateNewPassword } from '../features/auth/validation'
 import { ApiError } from '../shared/api/errors'
 import { Alert, Button, Card, PasswordField } from '../shared/components'
 import styles from './SessionPages.module.css'
@@ -22,7 +23,6 @@ export function FirstAccessPage() {
     }
     try {
       await changePassword({ currentPassword: values.currentPassword, newPassword: values.newPassword })
-      navigate('/login', { replace: true })
     } catch (error) {
       setServerError(error instanceof ApiError ? error.message : 'Não foi possível alterar a senha. Tente novamente.')
     }
@@ -36,8 +36,8 @@ export function FirstAccessPage() {
         <Alert tone="warning">Antes de utilizar o sistema, substitua sua senha provisória.</Alert>
         {serverError && <Alert tone="error">{serverError}</Alert>}
         <form onSubmit={handleSubmit(submit)} noValidate className={styles.form}>
-          <PasswordField id="current-password" label="Senha atual" autoComplete="current-password" required error={errors.currentPassword?.message} {...register('currentPassword', { required: 'Informe a senha atual.' })} />
-          <PasswordField id="new-password" label="Nova senha" autoComplete="new-password" required error={errors.newPassword?.message} {...register('newPassword', { required: 'Informe a nova senha.', minLength: { value: 6, message: 'Use pelo menos 6 caracteres.' }, maxLength: { value: 100, message: 'Use no máximo 100 caracteres.' } })} />
+          <PasswordField id="current-password" label="Senha atual" autoComplete="current-password" required error={errors.currentPassword?.message} {...register('currentPassword', { validate: validateCurrentPassword })} />
+          <PasswordField id="new-password" label="Nova senha" autoComplete="new-password" required error={errors.newPassword?.message} {...register('newPassword', { validate: validateNewPassword })} />
           <PasswordField id="confirm-password" label="Confirmar nova senha" autoComplete="new-password" required error={errors.confirmPassword?.message} {...register('confirmPassword', { required: 'Confirme a nova senha.' })} />
           <Button type="submit" busy={isSubmitting}>Alterar senha</Button>
         </form>
