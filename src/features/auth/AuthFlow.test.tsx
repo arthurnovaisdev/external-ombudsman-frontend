@@ -162,6 +162,7 @@ it('logout local remove token, usuário e cache sem endpoint remoto', async () =
   const user = await enter('cliente')
   await screen.findByRole('heading', { name: 'Área do cliente' })
   queryClient.setQueryData(['privado'], { segredo: true })
+  await user.click(screen.getByRole('button', { name: 'Menu' }))
   await user.click(screen.getByRole('button', { name: 'Sair' }))
   expect(screen.getByRole('heading', { name: 'Entrar na Ouvidoria' })).toBeInTheDocument()
   expect(memoryToken.get()).toBeNull()

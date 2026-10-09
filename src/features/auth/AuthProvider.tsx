@@ -11,6 +11,7 @@ export type AppRole = 'CLIENT' | 'ADMIN'
 
 interface AuthContextValue {
   user: UserResponseDTO | null
+  profileLoading: boolean
   passwordChangedNotice: boolean
   login: (credentials: LoginRequestDTO) => Promise<UserResponseDTO>
   changePassword: (body: ChangePasswordRequestDTO) => Promise<void>
@@ -31,6 +32,7 @@ export function destinationFor(user: UserResponseDTO): string {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
   const [user, setUser] = useState<UserResponseDTO | null>(null)
+  const [profileLoading, setProfileLoading] = useState(false)
   const [passwordChangedNotice, setPasswordChangedNotice] = useState(false)
   const generation = useRef(0)
 
@@ -38,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     generation.current += 1
     memoryToken.clear()
     setUser(null)
+    setProfileLoading(false)
     queryClient.clear()
   }, [queryClient])
 
@@ -54,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new ApiError('invalid-response', null)
     }
     memoryToken.set(response.token)
+    setProfileLoading(true)
     try {
       const profile = await accountApi.me()
       if (attempt !== generation.current) throw new ApiError('cancelled', null)
@@ -66,6 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       logout()
       throw error
+    } finally {
+      if (attempt === generation.current) setProfileLoading(false)
     }
   }, [logout])
 
@@ -76,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout()
   }, [logout])
 
-  return <AuthContext.Provider value={{ user, passwordChangedNotice, login, changePassword, logout }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, profileLoading, passwordChangedNotice, login, changePassword, logout }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth(): AuthContextValue {

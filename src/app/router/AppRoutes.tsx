@@ -9,12 +9,20 @@ import { ResetPasswordPage } from '../../pages/ResetPasswordPage'
 import { RoleHomePage } from '../../pages/RoleHomePage'
 import { AccountPage } from '../../pages/AccountPage'
 import { AccessDeniedPage } from '../../pages/AccessDeniedPage'
+import { SectionPage } from '../../pages/SectionPage'
+import { ClientLayout } from '../layouts/ClientLayout'
+import { AdminLayout } from '../layouts/AdminLayout'
 import { useAuth } from '../../features/auth/AuthProvider'
 import { PublicOnly, RequireAuthenticated, RequireFirstAccess, RequirePasswordChanged, RequireRole } from './guards'
 
 function UnknownRoute() {
   const { user } = useAuth()
   return user && !user.passwordChanged ? <Navigate to="/primeiro-acesso" replace /> : <NotFoundPage />
+}
+
+function AccountRedirect() {
+  const { user } = useAuth()
+  return <Navigate to={user?.role === 'ADMIN' ? '/admin/conta' : '/client/conta'} replace />
 }
 
 export function AppRoutes({ initialResetToken }: { initialResetToken?: string | null }) {
@@ -33,13 +41,23 @@ export function AppRoutes({ initialResetToken }: { initialResetToken?: string | 
           <Route path="/first-access" element={<Navigate to="/primeiro-acesso" replace />} />
         </Route>
         <Route element={<RequirePasswordChanged />}>
-          <Route path="/account" element={<AccountPage />} />
+          <Route path="/account" element={<AccountRedirect />} />
           <Route path="/access-denied" element={<AccessDeniedPage />} />
           <Route element={<RequireRole role="CLIENT" />}>
-            <Route path="/client" element={<RoleHomePage role="CLIENT" />} />
+            <Route path="/client" element={<ClientLayout />}>
+              <Route index element={<RoleHomePage role="CLIENT" />} />
+              <Route path="manifestacoes" element={<SectionPage title="Manifestações" />} />
+              <Route path="conta" element={<AccountPage />} />
+            </Route>
           </Route>
           <Route element={<RequireRole role="ADMIN" />}>
-            <Route path="/admin" element={<RoleHomePage role="ADMIN" />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<RoleHomePage role="ADMIN" />} />
+              <Route path="manifestacoes" element={<SectionPage title="Manifestações" />} />
+              <Route path="clientes" element={<SectionPage title="Clientes" />} />
+              <Route path="categorias" element={<SectionPage title="Categorias" />} />
+              <Route path="conta" element={<AccountPage />} />
+            </Route>
           </Route>
         </Route>
       </Route>

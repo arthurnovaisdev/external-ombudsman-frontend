@@ -14,3 +14,4 @@
 .form { display: grid; gap: var(--space-4); }
 .link { color: var(--color-accent); width: fit-content; text-underline-offset: 0.2em; }
 .link:hover { text-decoration-thickness: 0.15em; }
+.profileLoading { display: flex; align-items: center; gap: var(--space-2); color: var(--color-text-muted); }
