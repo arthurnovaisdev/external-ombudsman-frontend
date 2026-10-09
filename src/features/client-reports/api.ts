@@ -1,12 +1,12 @@
 import { httpClient, type RequestOptions } from '../../shared/api/httpClient'
-import { decodePageContent, pageQuery, type PageRequest } from '../../shared/api/page'
+import { decodePageWithTotals, pageQuery, type PageRequest } from '../../shared/api/page'
 import type { ProtocolResponseDTO, ReportRequestDTO, ReportResponseDTO } from '../../shared/api/contracts'
 
 export const clientReportsApi = {
   create: (body: ReportRequestDTO, options?: RequestOptions) =>
     httpClient.post<ProtocolResponseDTO>('/api/reports', body, options),
   list: async (page: PageRequest = {}, options?: RequestOptions) =>
-    decodePageContent<ReportResponseDTO>(await httpClient.get<unknown>(pageQuery('/api/reports/mine', page), options)),
+    decodePageWithTotals<ReportResponseDTO>(await httpClient.get<unknown>(pageQuery('/api/reports/mine', page), options)),
   detail: (protocol: string, options?: RequestOptions) =>
     httpClient.get<ReportResponseDTO>(`/api/reports/mine/${encodeURIComponent(protocol)}`, options),
 }

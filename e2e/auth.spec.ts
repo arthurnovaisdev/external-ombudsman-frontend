@@ -20,6 +20,13 @@ test('reload encerra a sessão sem restaurar JWT do navegador', async ({ page })
         contactEmail: null, role: 'CLIENT', active: true, passwordChanged: true,
       }) })
     }
+    if (new URL(request.url()).pathname === '/api/reports/mine' && request.headers().authorization === 'Bearer browser-mock-token') {
+      const parsed = new URL(request.url())
+      return route.fulfill({ status: 200, headers: cors, contentType: 'application/json', body: JSON.stringify({
+        content: [], number: Number(parsed.searchParams.get('page') ?? 0),
+        size: Number(parsed.searchParams.get('size') ?? 10), totalElements: 0, totalPages: 0,
+      }) })
+    }
     return route.fulfill({ status: 401, headers: cors, contentType: 'application/json', body: JSON.stringify({
       status: 401, erro: 'Token ausente, inválido ou expirado', timestamp: '2026-10-09T10:00:00',
     }) })

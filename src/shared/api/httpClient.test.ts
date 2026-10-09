@@ -39,12 +39,14 @@ describe('cliente HTTP e contratos', () => {
     expect(captured?.credentials).toBeUndefined()
   })
 
-  it('mantém campos nulos e pagina o conteúdo sem assumir metadados do envelope', async () => {
+  it('mantém campos nulos e lê o total paginado somente em manifestações do cliente', async () => {
     memoryToken.set('mock-jwt')
     const first = await clientReportsApi.list({ page: 0, size: 1 })
     const second = await clientReportsApi.list({ page: 1, size: 1 })
     expect(first.content).toEqual([fixtures.report])
     expect(second.content).toEqual([fixtures.closedReport])
+    expect(first).toMatchObject({ number: 0, size: 1, totalElements: 2, totalPages: 2 })
+    expect(second).toMatchObject({ number: 1, size: 1, totalElements: 2, totalPages: 2 })
     expect(first.content[0].closedAt).toBeNull()
     expect(first.content[0].messagesPurgedAt).toBeNull()
     expect(second.content[0].closedAt).toBe('2026-10-09T11:00:00Z')
@@ -145,6 +147,16 @@ describe('cliente HTTP e contratos', () => {
     memoryToken.set('mock-jwt')
     server.use(http.get(`${origin}/api/categories`, () => HttpResponse.json({ items: [] })))
     await expect(categoriesApi.list()).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+
+  it('rejeita total paginado ausente ou inválido nas manifestações do cliente', async () => {
+    memoryToken.set('mock-jwt')
+    server.use(http.get(`${origin}/api/reports/mine`, () => HttpResponse.json({ content: [fixtures.report] })))
+    await expect(clientReportsApi.list({ page: 0, size: 10 })).rejects.toMatchObject({ kind: 'invalid-response' })
+    server.use(http.get(`${origin}/api/reports/mine`, () => HttpResponse.json({
+      content: [fixtures.report], number: 0, size: 10, totalElements: -1, totalPages: 1,
+    })))
+    await expect(clientReportsApi.list({ page: 0, size: 10 })).rejects.toMatchObject({ kind: 'invalid-response' })
   })
 
   it('diferencia timeout de cancelamento explícito', async () => {

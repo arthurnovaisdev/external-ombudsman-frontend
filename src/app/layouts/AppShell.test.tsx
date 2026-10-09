@@ -42,7 +42,7 @@ it('mostra apenas a navegação CLIENT e marca a rota ativa', async () => {
   expect(within(nav).queryByRole('link', { name: 'Categorias' })).not.toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Pular para o conteúdo' })).toHaveAttribute('href', '#conteudo-principal')
   await user.click(within(nav).getByRole('link', { name: 'Manifestações' }))
-  expect(screen.getByRole('heading', { name: 'Manifestações' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Minhas manifestações' })).toBeInTheDocument()
   await user.click(menu)
   expect(within(screen.getByRole('navigation', { name: 'Navegação do cliente' })).getByRole('link', { name: 'Manifestações' })).toHaveAttribute('aria-current', 'page')
 })

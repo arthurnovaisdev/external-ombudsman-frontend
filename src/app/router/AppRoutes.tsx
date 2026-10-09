@@ -12,6 +12,9 @@ import { AccessDeniedPage } from '../../pages/AccessDeniedPage'
 import { SectionPage } from '../../pages/SectionPage'
 import { ClientLayout } from '../layouts/ClientLayout'
 import { AdminLayout } from '../layouts/AdminLayout'
+import { ClientDashboardPage } from '../../features/client-reports/ClientDashboardPage'
+import { ClientReportsPage } from '../../features/client-reports/ClientReportsPage'
+import { ClientReportDetailPage } from '../../features/client-reports/ClientReportDetailPage'
 import { useAuth } from '../../features/auth/AuthProvider'
 import { PublicOnly, RequireAuthenticated, RequireFirstAccess, RequirePasswordChanged, RequireRole } from './guards'
 
@@ -45,8 +48,10 @@ export function AppRoutes({ initialResetToken }: { initialResetToken?: string | 
           <Route path="/access-denied" element={<AccessDeniedPage />} />
           <Route element={<RequireRole role="CLIENT" />}>
             <Route path="/client" element={<ClientLayout />}>
-              <Route index element={<RoleHomePage role="CLIENT" />} />
-              <Route path="manifestacoes" element={<SectionPage title="Manifestações" />} />
+              <Route index element={<ClientDashboardPage />} />
+              <Route path="manifestacoes" element={<ClientReportsPage />} />
+              <Route path="manifestacoes/nova" element={<SectionPage title="Nova manifestação" />} />
+              <Route path="manifestacoes/:protocol" element={<ClientReportDetailPage />} />
               <Route path="conta" element={<AccountPage />} />
             </Route>
           </Route>

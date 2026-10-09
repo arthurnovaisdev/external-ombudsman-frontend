@@ -23,7 +23,7 @@ export const fixtures = {
     messagesPurgedAt: null,
   } satisfies ReportResponseDTO,
   closedReport: {
-    protocol, category: 'Atendimento', description: 'Relato de teste', incidentDate: null,
+    protocol: 'DEN-2026-HGFEDCBA', category: 'Atendimento', description: 'Relato de teste', incidentDate: null,
     incidentLocation: null, createdAt: '2026-10-09T10:00:00Z',
     closedAt: '2026-10-09T11:00:00Z', messagesPurgedAt: '2026-11-09T11:00:00Z',
   } satisfies ReportResponseDTO,
@@ -53,6 +53,19 @@ function page<T>(request: Request, items: readonly T[]): { content: T[] } {
   const number = Number(url.searchParams.get('page') ?? 0)
   const size = Number(url.searchParams.get('size') ?? 10)
   return { content: items.slice(number * size, (number + 1) * size) }
+}
+
+function reportPage<T>(request: Request, items: readonly T[]) {
+  const url = new URL(request.url)
+  const number = Number(url.searchParams.get('page') ?? 0)
+  const size = Number(url.searchParams.get('size') ?? 10)
+  return {
+    content: items.slice(number * size, (number + 1) * size),
+    number,
+    size,
+    totalElements: items.length,
+    totalPages: Math.ceil(items.length / size),
+  }
 }
 
 function error(status: number, erro: string, headers?: HeadersInit) {
@@ -109,7 +122,7 @@ export const handlers: HttpHandler[] = [
   http.get(`${origin}/api/categories`, ({ request }) => deny(request) ?? HttpResponse.json(page(request, [fixtures.category]))),
   http.post(`${origin}/api/categories`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(fixtures.category, { status: 201 })),
   http.post(`${origin}/api/reports`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json({ protocol }, { status: 201 })),
-  http.get(`${origin}/api/reports/mine`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json(page(request, [fixtures.report, fixtures.closedReport]))),
+  http.get(`${origin}/api/reports/mine`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json(reportPage(request, [fixtures.report, fixtures.closedReport]))),
   http.get(`${origin}/api/reports/mine/:protocol`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json(fixtures.report)),
   http.get(`${origin}/api/reports/admin`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(page(request, [fixtures.summary]))),
   http.get(`${origin}/api/reports/admin/:protocol`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(adminDetail)),

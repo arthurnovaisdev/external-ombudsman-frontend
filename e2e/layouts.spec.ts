@@ -26,6 +26,20 @@ for (const role of ['CLIENT', 'ADMIN'] as const) {
             role, active: true, passwordChanged: true,
           }) })
         }
+        if (new URL(request.url()).pathname === '/api/reports/mine') {
+          const parsed = new URL(request.url())
+          const number = Number(parsed.searchParams.get('page') ?? 0)
+          const size = Number(parsed.searchParams.get('size') ?? 10)
+          const reports = [{
+            protocol: 'DEN-2026-ABCDEFGH', category: 'Atendimento', description: 'Relato de teste',
+            incidentDate: null, incidentLocation: null, createdAt: '2026-10-09T10:00:00Z',
+            closedAt: null, messagesPurgedAt: null,
+          }]
+          return route.fulfill({ status: 200, headers: cors, contentType: 'application/json', body: JSON.stringify({
+            content: reports.slice(number * size, (number + 1) * size), number, size,
+            totalElements: reports.length, totalPages: Math.ceil(reports.length / size),
+          }) })
+        }
         return route.fulfill({ status: 404, headers: cors })
       })
 
@@ -64,7 +78,7 @@ for (const role of ['CLIENT', 'ADMIN'] as const) {
       await skipLink.press('Enter')
       await expect(page.locator('#conteudo-principal')).toBeFocused()
       await nav.getByRole('link', { name: role === 'ADMIN' ? 'Clientes' : 'Manifestações' }).click()
-      await expect(page.getByRole('heading', { name: role === 'ADMIN' ? 'Clientes' : 'Manifestações' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: role === 'ADMIN' ? 'Clientes' : 'Minhas manifestações' })).toBeVisible()
       if (width < 1088) await menu.click()
       const activeNav = page.getByRole('navigation', { name: role === 'ADMIN' ? 'Navegação administrativa' : 'Navegação do cliente' })
       await expect(activeNav.getByRole('link', { name: role === 'ADMIN' ? 'Clientes' : 'Manifestações' })).toHaveAttribute('aria-current', 'page')
