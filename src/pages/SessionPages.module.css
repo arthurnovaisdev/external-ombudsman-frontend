@@ -1,0 +1,14 @@
+.page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--space-5);
+  background: radial-gradient(circle at 50% 10%, #272016 0, var(--color-background) 52%);
+}
+.card { display: flex; flex-direction: column; gap: var(--space-5); width: min(100%, 29rem); padding: var(--space-6); }
+.brand { display: flex; align-items: center; gap: var(--space-2); font-size: 0.875rem; font-weight: 800; letter-spacing: 0.04em; }
+.mark { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--radius-sm); background: var(--color-accent); color: var(--color-accent-text); letter-spacing: -0.07em; }
+.card h1 { margin: 0; font-size: clamp(1.6rem, 6vw, 2rem); line-height: 1.15; }
+.intro, .note { margin: 0; color: var(--color-text-muted); }
+.note { font-size: 0.85rem; }
+.form { display: grid; gap: var(--space-4); }

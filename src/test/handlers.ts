@@ -61,8 +61,9 @@ function error(status: number, erro: string, headers?: HeadersInit) {
 
 function deny(request: Request, role: 'CLIENT' | 'ADMIN' | 'ANY' = 'ANY', allowFirstAccess = false): Response | null {
   const token = request.headers.get('Authorization')
+  if (token === 'Bearer mock-expired') return error(401, 'Sessão expirada. Faça login novamente.')
   const actualRole = token === 'Bearer mock-admin-jwt' ? 'ADMIN'
-    : token === 'Bearer mock-jwt' || token === 'Bearer mock-first-access' ? 'CLIENT' : null
+    : token === 'Bearer mock-jwt' || token === 'Bearer mock-first-access' || token === 'Bearer mock-inactive' ? 'CLIENT' : null
   if (actualRole === null) return error(401, 'Token ausente, inválido ou expirado')
   if (token === 'Bearer mock-first-access' && !allowFirstAccess) {
     return error(403, 'É necessário alterar a senha provisória antes de utilizar o sistema.')
@@ -77,15 +78,29 @@ export const handlers: HttpHandler[] = [
       return HttpResponse.json({ status: 400, detalhes: { username: 'O username não pode estar vazio.' }, timestamp }, { status: 400 })
     }
     if (body.username === 'limited') return error(429, 'Muitas tentativas. Aguarde antes de tentar novamente.', { 'Retry-After': '60' })
+    if (body.username === 'desativado') return error(401, 'Usuário desativado ou não autorizado.')
     if (body.password !== 'senha-correta') return error(401, 'Username ou senha inválidos.')
     if (body.username === 'admin') return HttpResponse.json({ token: 'mock-admin-jwt', name: 'Admin Exemplo', role: 'ADMIN', passwordChanged: true } satisfies LoginResponseDTO)
     if (body.username === 'primeiroacesso') return HttpResponse.json({ token: 'mock-first-access', name: 'Cliente Exemplo', role: 'CLIENT', passwordChanged: false } satisfies LoginResponseDTO)
+    if (body.username === 'expirado') return HttpResponse.json({ ...fixtures.login, token: 'mock-expired' })
+    if (body.username === 'inativo') return HttpResponse.json({ ...fixtures.login, token: 'mock-inactive' })
     return HttpResponse.json(fixtures.login)
   }),
   http.post(`${origin}/api/auth/forgot-password`, () => new HttpResponse(null, { status: 200 })),
   http.post(`${origin}/api/auth/reset-password`, () => new HttpResponse(null, { status: 200 })),
   http.post(`${origin}/api/auth/register`, ({ request }) => deny(request, 'ADMIN') ?? new HttpResponse(null, { status: 201 })),
-  http.get(`${origin}/api/users/me`, ({ request }) => deny(request, 'ANY', true) ?? HttpResponse.json({ ...fixtures.user, passwordChanged: request.headers.get('Authorization') !== 'Bearer mock-first-access' })),
+  http.get(`${origin}/api/users/me`, ({ request }) => {
+    const denied = deny(request, 'ANY', true)
+    if (denied) return denied
+    const token = request.headers.get('Authorization')
+    return HttpResponse.json({
+      ...fixtures.user,
+      name: token === 'Bearer mock-admin-jwt' ? 'Admin Exemplo' : fixtures.user.name,
+      role: token === 'Bearer mock-admin-jwt' ? 'ADMIN' : 'CLIENT',
+      active: token !== 'Bearer mock-inactive',
+      passwordChanged: token !== 'Bearer mock-first-access',
+    } satisfies UserResponseDTO)
+  }),
   http.patch(`${origin}/api/users/me/password`, ({ request }) => deny(request, 'ANY', true) ?? new HttpResponse(null, { status: 204 })),
   http.get(`${origin}/api/users`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(page(request, [fixtures.user]))),
   http.get(`${origin}/api/users/:id`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(fixtures.user)),

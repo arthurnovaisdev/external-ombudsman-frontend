@@ -1,12 +1,12 @@
 # Ouvidoria MBFREIRE — frontend
 
-Fundação React e TypeScript do frontend da Ouvidoria MBFREIRE. A aplicação ainda contém apenas a página inicial técnica e o roteamento básico. Os fluxos de autenticação e as telas de negócio serão integrados nas próximas etapas; os contratos e módulos HTTP já estão preparados.
+Frontend React e TypeScript da Ouvidoria MBFREIRE. A fundação, os contratos HTTP, o design system e o fluxo de autenticação estão implementados. As áreas CLIENT e ADMIN ainda são páginas mínimas de navegação; as telas de negócio serão integradas em etapas futuras.
 
 ## Desenvolvimento
 
 Requer Node.js compatível com Vite 8. Instale as dependências com `npm install` e execute `npm run dev`. O servidor de desenvolvimento usa a porta 5173.
 
-Copie os valores públicos de `.env.example` para a configuração local quando a integração com a API começar. `VITE_API_BASE_URL` aponta para o backend e `VITE_ATTACHMENTS_ENABLED` permanece `false` no MVP. O frontend não deve conter segredos.
+Copie os valores públicos de `.env.example` para a configuração local. `VITE_API_BASE_URL` aponta para o backend e `VITE_ATTACHMENTS_ENABLED` permanece `false` no MVP. O frontend não deve conter segredos.
 
 ## Verificações
 
@@ -22,9 +22,15 @@ Copie os valores públicos de `.env.example` para a configuração local quando 
 
 O backend fica em `C:\Projects\external-ombudsman`. A autenticação usa JWT no cabeçalho `Authorization: Bearer`; os perfis são `CLIENT` e `ADMIN`. O primeiro acesso limita o usuário ao próprio perfil e à troca de senha. Não há cadastro público, consulta anônima, refresh token nem logout remoto.
 
-Os tipos em `src/shared/api/contracts.ts` espelham os records do backend, incluindo os campos anuláveis. Há módulos de API para as rotas existentes de autenticação, conta, usuários, categorias, manifestações, mensagens e anexos. Eles ainda não são chamados pelas telas. O JWT pode ser fornecido por `memoryToken`; não há persistência, refresh token, cookies nem CSRF. O servidor continua sendo a autoridade sobre papéis e propriedade dos recursos.
+Os tipos em `src/shared/api/contracts.ts` espelham os records do backend, incluindo os campos anuláveis. Há módulos de API para as rotas existentes de autenticação, conta, usuários, categorias, manifestações, mensagens e anexos. Apenas login, `/api/users/me` e troca de senha estão conectados às telas nesta etapa. O JWT é mantido somente por `memoryToken`; não há persistência, refresh token, cookies nem CSRF. O servidor continua sendo a autoridade sobre papéis e propriedade dos recursos.
 
 O cliente HTTP interpreta os dois formatos de erro do backend (`erro` e `detalhes`), classifica os status conhecidos, lê `Retry-After` como segundos inteiros válidos e aceita cancelamento e timeout. Os anexos continuam desabilitados por padrão na configuração pública; quando a interface for implementada, ela deve respeitar `VITE_ATTACHMENTS_ENABLED`. O backend também pode responder 503 para anexos desabilitados.
+
+## Sessão e navegação
+
+Após `POST /api/auth/login`, o frontend usa o Bearer recebido para consultar `GET /api/users/me`. A sessão só é liberada se o perfil estiver ativo e os dados de papel/primeiro acesso coincidirem com a resposta do login. Nenhuma permissão é deduzida do conteúdo do JWT. A página recarregada perde token e usuário. Logout é local: remove token, usuário e cache do TanStack Query, sem endpoint remoto. Qualquer resposta HTTP 401 executa a mesma limpeza.
+
+As rotas públicas, autenticadas, de primeiro acesso, CLIENT e ADMIN são protegidas apenas para navegação. Primeiro acesso apresenta somente consulta ao perfil, troca de senha e saída local; a troca bem-sucedida invalida a sessão e exige novo login. O backend deve continuar validando toda requisição e propriedade de dados. As páginas `/client`, `/admin` e `/account` não simulam funcionalidades de negócio.
 
 ### Pendência: envelope paginado
 

@@ -1,5 +1,6 @@
 import { ApiError, httpError } from './errors'
 import { memoryToken } from '../auth/memoryToken'
+import { notifyUnauthorized } from '../auth/unauthorized'
 
 export interface RequestOptions {
   signal?: AbortSignal
@@ -85,6 +86,7 @@ export class HttpClient {
       })
 
       if (!response.ok) {
+        if (response.status === 401) notifyUnauthorized()
         const raw = await response.text()
         let payload: unknown
         try { payload = JSON.parse(raw) as unknown } catch { payload = null }
