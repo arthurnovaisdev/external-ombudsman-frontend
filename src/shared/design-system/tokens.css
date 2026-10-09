@@ -1,0 +1,16 @@
+:root {
+  font-family: Inter, 'Segoe UI', Arial, sans-serif;
+  color-scheme: dark;
+  --color-background: #12110f;
+  --color-surface: #1e1d19;
+  --color-text: #f5f2ea;
+  --color-text-muted: #b9b2a6;
+  --color-accent: #f6a623;
+  --color-accent-text: #17120a;
+  --color-border: #3b362d;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --radius-sm: 0.375rem;
+}
