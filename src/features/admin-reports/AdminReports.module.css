@@ -27,6 +27,28 @@
 .reportMeta strong { color: var(--color-text); }
 .username { color: var(--color-text-muted); }
 .reportDescription { margin: 0; color: var(--color-text); overflow-wrap: anywhere; }
+.detailLink { width: fit-content; font-weight: 700; text-underline-offset: 0.2em; }
+.detailCard, .detailSection, .messageFormCard, .closeSection { display: grid; gap: var(--space-4); width: min(100%, 55rem); min-width: 0; }
+.detailCard h2, .detailSection h2, .messageFormCard h2, .closeSection h2 { margin: 0; font-size: 1.25rem; }
+.detailFields { display: grid; gap: var(--space-4); margin: 0; }
+.detailFields div { min-width: 0; }
+.detailFields dt { color: var(--color-text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.detailFields dd { margin: var(--space-1) 0 0; overflow-wrap: anywhere; }
+.fullDescription, .messageBody { white-space: pre-wrap; }
+.fullWidth { grid-column: 1 / -1; }
+.messageList, .attachmentList { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+.messageCard { display: grid; gap: var(--space-3); }
+.messageMeta { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); color: var(--color-text-muted); font-size: 0.875rem; overflow-wrap: anywhere; }
+.messageMeta strong { color: var(--color-text); }
+.messageBody { margin: 0; overflow-wrap: anywhere; }
+.messageForm { display: grid; justify-items: start; gap: var(--space-4); }
+.messageForm > div { width: 100%; }
+.attachmentCard { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.attachmentCard > div { min-width: 0; overflow-wrap: anywhere; }
+.attachmentCard p, .closeSection p { margin: var(--space-2) 0 0; color: var(--color-text-muted); overflow-wrap: anywhere; }
+.closeSection { border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); padding: var(--space-5); }
+.closeSection > button { width: fit-content; }
 @media (min-width: 45rem) {
   .shortcuts, .reportList, .loadingList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .detailFields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

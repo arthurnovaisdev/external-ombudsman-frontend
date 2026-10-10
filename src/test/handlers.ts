@@ -143,7 +143,7 @@ export const handlers: HttpHandler[] = [
     deny(request, 'CLIENT') ?? (params.protocol === fixtures.report.protocol || params.protocol === fixtures.closedReport.protocol
       ? HttpResponse.json(reportPage(request, params.protocol === fixtures.closedReport.protocol ? [] : [fixtures.message]))
       : error(404, 'Manifestação não encontrada.'))),
-  http.get(`${origin}/api/reports/admin/:protocol/messages`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(page(request, [fixtures.message]))),
+  http.get(`${origin}/api/reports/admin/:protocol/messages`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(reportPage(request, [fixtures.message]))),
   http.post(`${origin}/api/reports/mine/:protocol/messages`, async ({ request, params }) => {
     const denied = deny(request, 'CLIENT')
     if (denied) return denied

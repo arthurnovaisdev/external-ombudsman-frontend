@@ -1,4 +1,5 @@
 import type { ReportAdminSummaryResponseDTO } from '../../shared/api/contracts'
+import { Link } from 'react-router-dom'
 import { Card, Protocol, StatusBadge } from '../../shared/components'
 import { formatReportDate, summarizeDescription } from '../client-reports/presentation'
 import styles from './AdminReports.module.css'
@@ -16,6 +17,9 @@ export function AdminReportSummaryCard({ report }: { report: ReportAdminSummaryR
         <span><strong>Criada em:</strong> <time dateTime={report.createdAt}>{formatReportDate(report.createdAt)}</time></span>
       </div>
       <p className={styles.reportDescription}>{summarizeDescription(report.description)}</p>
+      <Link className={styles.detailLink} to={`/admin/manifestacoes/${encodeURIComponent(report.protocol)}`}>
+        Ver detalhes <span className="sr-only">da manifestação {report.protocol}</span><span aria-hidden="true"> →</span>
+      </Link>
     </Card></article>
   )
 }

@@ -1,6 +1,6 @@
 # Ouvidoria MBFREIRE — frontend
 
-Frontend React e TypeScript da Ouvidoria MBFREIRE. A fundação, os contratos HTTP, o design system, a autenticação, as telas de manifestações do cliente, o dashboard administrativo e a listagem administrativa estão implementados. As demais seções ADMIN ainda são estruturais.
+Frontend React e TypeScript da Ouvidoria MBFREIRE. A fundação, os contratos HTTP, o design system, a autenticação, as telas de manifestações do cliente e o dashboard, a listagem e o detalhe administrativos estão implementados. Clientes e categorias ADMIN ainda são seções estruturais.
 
 ## Desenvolvimento
 
@@ -24,7 +24,7 @@ O backend fica em `C:\Projects\external-ombudsman`. A autenticação usa JWT no 
 
 Os tipos em `src/shared/api/contracts.ts` espelham os records do backend, incluindo os campos anuláveis. Há módulos de API para as rotas existentes de autenticação, conta, usuários, categorias, manifestações, mensagens e anexos. Login, `/api/users/me`, troca de senha, recuperação de senha, dashboard, listagem e detalhe das próprias manifestações estão conectados às telas nesta etapa. O JWT é mantido somente por `memoryToken`; não há persistência, refresh token, cookies nem CSRF. O servidor continua sendo a autoridade sobre papéis e propriedade dos recursos.
 
-O cliente HTTP interpreta os dois formatos de erro do backend (`erro` e `detalhes`), classifica os status conhecidos, lê `Retry-After` como segundos inteiros válidos e aceita cancelamento e timeout. Os anexos continuam desabilitados por padrão na configuração pública; quando a interface for implementada, ela deve respeitar `VITE_ATTACHMENTS_ENABLED`. O backend também pode responder 503 para anexos desabilitados.
+O cliente HTTP interpreta os dois formatos de erro do backend (`erro` e `detalhes`), classifica os status conhecidos, lê `Retry-After` como segundos inteiros válidos e aceita cancelamento e timeout. Os anexos continuam desabilitados por padrão na configuração pública. O detalhe ADMIN só mostra metadados e download quando `VITE_ATTACHMENTS_ENABLED=true`; o backend também pode responder 503 para anexos desabilitados.
 
 ## Sessão e navegação
 
@@ -38,7 +38,7 @@ Os layouts autenticados são separados por perfil. `CLIENT` vê Início, Manifes
 
 O dashboard CLIENT consulta `/api/users/me` e a primeira página de `/api/reports/mine?page=0&size=5`. O total exibido vem de `totalElements`; não há contadores globais por situação. A listagem usa `page` na URL, tamanho fixo de 10, metadados do servidor e a ordenação definida pelo controller (`createdAt` decrescente), sem filtros ou ordenação local. O detalhe consulta `/api/reports/mine/{protocol}` e o histórico em `/api/reports/mine/{protocol}/messages?page&size`, com páginas de 20 na ordem crescente fornecida pelo backend. O envio usa `POST /api/reports/mine/{protocol}/messages` somente para manifestações abertas; não há mensagem otimista. O cache é invalidado após HTTP 201. Administradores aparecem como “Equipe da Ouvidoria”, sem username. Manifestação encerrada permanece legível, mas não oferece envio; `messagesPurgedAt` gera aviso de retenção. O detalhe CLIENT não inventa listagem de anexos.
 
-O dashboard ADMIN consulta a primeira página de `/api/reports/admin?page=0&size=5`, mostra o total de `totalElements`, registros recentes e atalhos para clientes e categorias. A listagem ADMIN usa páginas de 10, mostra protocolo, cliente, categoria, resumo, criação e situação derivada de `closedAt`. O controller define criação decrescente. Não há filtros, busca, ordenação local ou contadores separados por situação. O detalhe administrativo ainda não está implementado.
+O dashboard ADMIN consulta a primeira página de `/api/reports/admin?page=0&size=5`, mostra o total de `totalElements`, registros recentes e atalhos para clientes e categorias. A listagem ADMIN usa páginas de 10, mostra protocolo, cliente, categoria, resumo, criação e situação derivada de `closedAt`. O controller define criação decrescente. Não há filtros, busca, ordenação local ou contadores separados por situação. O detalhe ADMIN consulta `/api/reports/admin/{protocol}` e mensagens paginadas em ordem crescente; mostra os dados confirmados do proprietário, a manifestação e o histórico. Respostas são permitidas somente enquanto `closedAt=null` e só entram na interface após HTTP 201. O encerramento exige modal de confirmação, espera o retorno do servidor e invalida detalhe, listas, dashboard e mensagens. Não há reabertura, upload ou exclusão administrativa de anexos.
 
 O cadastro carrega `GET /api/categories?page&size` em páginas de 50, com ação para carregar páginas adicionais e exibindo apenas categorias ativas. Envia somente os quatro campos de `ReportRequestDTO` em JSON para `POST /api/reports`. A confirmação só aparece após HTTP 201 com protocolo válido; lista e dashboard são invalidados. Categoria removida ou inativa, validação e limite de requisições têm tratamento próprio. Com `VITE_ATTACHMENTS_ENABLED=false`, o formulário informa que anexos estão indisponíveis e não tenta upload. O envelope das categorias usa somente `content`; o teste HTTP com backend real permanece pendente.
 
@@ -46,7 +46,7 @@ As páginas públicas `/esqueci-senha` e `/reset-password` usam os endpoints exi
 
 ### Pendência: envelope paginado
 
-Os controllers declaram `Page<T>`, mas não havia backend autenticado disponível para conferência nesta etapa. **Não foi validado o JSON paginado real.** Para viabilizar totais e navegação, `src/shared/api/page.ts` isola um decoder para `content`, `number`, `size`, `totalElements` e `totalPages` nas rotas CLIENT de manifestações e mensagens e na listagem ADMIN. Os handlers MSW simulam esses campos; os demais módulos paginados continuam consumindo apenas `content`. Antes de homologar, conferir respostas HTTP autenticadas de `/api/reports/mine`, `/api/reports/mine/{protocol}/messages` e `/api/reports/admin` e ajustar o decoder se a serialização efetiva do Spring diferir. Os demais envelopes paginados também continuam pendentes de validação real.
+Os controllers declaram `Page<T>`, mas não havia backend autenticado disponível para conferência nesta etapa. **Não foi validado o JSON paginado real.** Para viabilizar totais e navegação, `src/shared/api/page.ts` isola um decoder para `content`, `number`, `size`, `totalElements` e `totalPages` nas rotas CLIENT de manifestações e mensagens e nas rotas ADMIN de listagem e mensagens. Os handlers MSW simulam esses campos; os demais módulos paginados continuam consumindo apenas `content`. Antes de homologar, conferir respostas HTTP autenticadas de `/api/reports/mine`, `/api/reports/mine/{protocol}/messages`, `/api/reports/admin` e `/api/reports/admin/{protocol}/messages` e ajustar o decoder se a serialização efetiva do Spring diferir. Os demais envelopes paginados também continuam pendentes de validação real.
 
 ## Design system
 
