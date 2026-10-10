@@ -42,7 +42,6 @@ export function LoginPage() {
           <Button type="submit" busy={isSubmitting}>Entrar</Button>
         </form>
         <Link className={styles.link} to="/esqueci-senha">Esqueci minha senha</Link>
-        <p className={styles.note}>A sessão permanece apenas nesta aba e termina ao recarregar a página. A autorização dos dados é feita pelo servidor.</p>
       </Card>
     </main>
   )

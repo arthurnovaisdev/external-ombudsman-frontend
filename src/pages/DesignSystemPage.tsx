@@ -45,7 +45,7 @@ export function DesignSystemPage() {
             <StatusBadge closedAt="2026-10-09T10:00:00Z" />
           </div>
           <Protocol value="DEN-2026-ABCDEFGH" />
-          <Alert tone="warning" title="Aviso">Um atendimento encerrado não recebe novas mensagens ou anexos.</Alert>
+          <Alert tone="warning" title="Aviso">Um atendimento encerrado não recebe novas mensagens.</Alert>
           <Alert tone="success" title="Sucesso">Este é um exemplo visual de confirmação.</Alert>
           <Button variant="secondary" onClick={() => notify('Esta é uma notificação de demonstração.', 'info')}>Mostrar toast</Button>
           <Skeleton width="70%" height="1.25rem" />

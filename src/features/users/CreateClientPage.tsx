@@ -94,7 +94,7 @@ export function CreateClientPage() {
         </div>
       </Card> : <Card className={styles.formCard}>
         <h2>Dados do novo cliente</h2>
-        <p className={styles.lead}>O perfil será Cliente (CLIENT). O servidor define esse perfil.</p>
+        <p className={styles.lead}>A nova conta será de cliente.</p>
         <p className={styles.lead}>O e-mail é opcional, mas recomendado para permitir a recuperação de senha.</p>
         {submitError && <Alert tone="error">{submitError}</Alert>}
         <form className={styles.form} onSubmit={handleSubmit(submit)} noValidate>

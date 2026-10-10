@@ -109,6 +109,15 @@ describe('cliente HTTP e contratos', () => {
     }
   })
 
+  it('preserva o erro confirmado do backend para todos os status previstos', async () => {
+    const cases = [400, 401, 403, 404, 409, 413, 429, 500, 503] as const
+    for (const status of cases) {
+      server.use(http.get(`${origin}/api/users/me`, () =>
+        HttpResponse.json({ status, erro: `Erro ${status}`, timestamp }, { status })))
+      await expect(accountApi.me()).rejects.toMatchObject({ status, message: `Erro ${status}`, timestamp })
+    }
+  })
+
   it('lê Retry-After apenas como segundos válidos', async () => {
     await expect(authApi.login({ username: 'limited', password: 'senha-correta' })).rejects.toMatchObject({
       kind: 'rate-limited', status: 429, retryAfterSeconds: 60,

@@ -57,7 +57,7 @@ it('lista somente categorias ativas retornadas pela API com paginação e sem a�
   const user = await loginAndOpen()
   expect(await screen.findByText('21 categorias ativas')).toBeInTheDocument()
   expect(calls).toContain('?page=0&size=20')
-  expect(screen.getByText(/A API retorna somente categorias ativas/)).toBeInTheDocument()
+  expect(screen.getByText('Esta lista mostra apenas categorias ativas.')).toBeInTheDocument()
   expect(screen.getAllByText('Ativa')).toHaveLength(20)
   expect(screen.queryByRole('button', { name: /editar|ativar|desativar|excluir/i })).not.toBeInTheDocument()
   expect(screen.queryByRole('heading', { name: /inativas/i })).not.toBeInTheDocument()

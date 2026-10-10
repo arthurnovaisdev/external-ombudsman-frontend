@@ -45,7 +45,8 @@ it('envia somente os quatro campos do DTO como JSON, mostra protocolo e invalida
   }))
   const client = renderFlow()
   const user = await openForm()
-  expect(screen.getByText('O envio de anexos está temporariamente indisponível.')).toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: 'Anexos' })).not.toBeInTheDocument()
+  expect(screen.queryByText('O envio de anexos está temporariamente indisponível.')).not.toBeInTheDocument()
   expect(screen.queryByLabelText(/arquivo|anexo/i, { selector: 'input' })).not.toBeInTheDocument()
   await user.selectOptions(screen.getByRole('combobox', { name: 'Categoria' }), fixtures.category.id)
   await user.type(screen.getByRole('textbox', { name: 'Descrição' }), '  Relato do atendimento  ')
@@ -61,11 +62,11 @@ it('envia somente os quatro campos do DTO como JSON, mostra protocolo e invalida
   expect(client.getQueryState(['client-reports', 0, 5])?.isInvalidated).toBe(true)
 })
 
-it('carrega mais de 50 categorias e oferece somente as ativas', async () => {
+it('carrega mais de 50 categorias ativas conforme o contrato da API', async () => {
   const firstPage: CategoryResponseDTO[] = Array.from({ length: 50 }, (_, index) => ({
     id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`,
     name: `Categoria ${index}`,
-    active: index !== 0,
+    active: true,
   }))
   const pages: number[] = []
   server.use(http.get(categoriesUrl, ({ request }) => {
@@ -77,12 +78,31 @@ it('carrega mais de 50 categorias e oferece somente as ativas', async () => {
   renderFlow()
   const user = await openForm()
   const category = screen.getByRole('combobox', { name: 'Categoria' })
-  expect(screen.queryByRole('option', { name: 'Categoria 0' })).not.toBeInTheDocument()
+  expect(screen.getByRole('option', { name: 'Categoria 0' })).toBeInTheDocument()
   expect(screen.getByRole('option', { name: 'Categoria 49' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Carregar mais categorias' }))
   expect(await screen.findByRole('option', { name: 'Atendimento' })).toBeInTheDocument()
   expect(category).toBeInTheDocument()
   expect(pages).toEqual([0, 1])
+})
+
+it('não oferece página adicional quando a API retorna exatamente 50 categorias e totalPages=1', async () => {
+  const onlyPage: CategoryResponseDTO[] = Array.from({ length: 50 }, (_, index) => ({
+    id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`,
+    name: `Categoria ${index}`,
+    active: true,
+  }))
+  const pages: number[] = []
+  server.use(http.get(categoriesUrl, ({ request }) => {
+    const requestedPage = Number(new URL(request.url).searchParams.get('page'))
+    pages.push(requestedPage)
+    return HttpResponse.json({ content: onlyPage, number: requestedPage, size: 50, totalElements: 50, totalPages: 1 })
+  }))
+  renderFlow()
+  await openForm()
+  expect(screen.getByRole('option', { name: 'Categoria 49' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Carregar mais categorias' })).not.toBeInTheDocument()
+  expect(pages).toEqual([0])
 })
 
 it('valida campos obrigatórios, data futura e tamanhos antes do envio', async () => {

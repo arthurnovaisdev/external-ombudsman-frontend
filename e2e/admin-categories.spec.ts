@@ -47,7 +47,7 @@ for (const width of [375, 1280]) {
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
     await page.getByRole('navigation', { name: 'Atalhos administrativos' }).getByRole('link', { name: /Categorias/ }).click()
     await expect(page.getByRole('heading', { name: 'Categorias' })).toBeVisible()
-    await expect(page.getByText(/A API retorna somente categorias ativas/)).toBeVisible()
+    await expect(page.getByText('Esta lista mostra apenas categorias ativas.')).toBeVisible()
     await expect(page.getByText('21 categorias ativas')).toBeVisible()
     await expect(page.getByText('Ativa', { exact: true })).toHaveCount(20)
     expect(requestedPages).toContain('?page=0&size=20')

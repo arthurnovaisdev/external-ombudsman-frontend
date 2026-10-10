@@ -31,6 +31,7 @@ afterEach(() => {
 
 it('valida username e tamanho da senha antes do login', async () => {
   renderPage('/login')
+  expect(screen.queryByText(/A sessão permanece apenas nesta aba/)).not.toBeInTheDocument()
   const user = userEvent.setup()
   await user.type(screen.getByRole('textbox', { name: 'Username' }), 'ab!')
   await user.type(screen.getByLabelText(/^Senha/), 'a'.repeat(101))

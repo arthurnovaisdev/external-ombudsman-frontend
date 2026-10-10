@@ -84,6 +84,7 @@ it('bloqueia todas as áreas no primeiro acesso e encerra sessão após trocar s
   renderFlow()
   const user = await enter('primeiroacesso')
   expect(await screen.findByRole('heading', { name: 'Alterar senha provisória' })).toBeInTheDocument()
+  expect(screen.getByText('Depois de alterar a senha, entre novamente.')).toBeInTheDocument()
   await user.click(screen.getByRole('link', { name: 'Abrir cliente' }))
   expect(screen.getByRole('heading', { name: 'Alterar senha provisória' })).toBeInTheDocument()
   await user.click(screen.getByRole('link', { name: 'Abrir conta' }))

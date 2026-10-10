@@ -58,11 +58,16 @@ it('mostra detalhe completo e mensagens na ordem do backend sem anexos quando de
     { ...fixtures.message, id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', body: 'Segunda mensagem', createdAt: '2026-10-09T10:00:00Z' },
   ]
   const pages: string[] = []
+  let attachmentRequests = 0
   server.use(
     http.get(detailUrl, () => HttpResponse.json({ ...fixtures.report, ownerName: 'Cliente Exemplo', ownerUsername: 'cliente', ownerContactEmail: 'contato@exemplo.com', attachments: [fixtures.attachment], incidentDate: '2026-10-08', incidentLocation: 'Escritório' })),
     http.get(messagesUrl, ({ request }) => {
       pages.push(new URL(request.url).search)
       return HttpResponse.json(paged(messages, 0, 20))
+    }),
+    http.get(`${detailUrl}/attachments/:id`, () => {
+      attachmentRequests += 1
+      return new HttpResponse(null, { status: 503 })
     }),
   )
   renderFlow()
@@ -83,6 +88,7 @@ it('mostra detalhe completo e mensagens na ordem do backend sem anexos quando de
   expect(pages).toContain('?page=0&size=20')
   expect(screen.queryByRole('heading', { name: 'Anexos' })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /Baixar anexo/ })).not.toBeInTheDocument()
+  expect(attachmentRequests).toBe(0)
 })
 
 it('pagina mensagens sem reordenar localmente', async () => {
@@ -178,7 +184,8 @@ it('encerramento exige modal e aguarda HTTP 200 antes de bloquear novas resposta
   const user = await loginAndOpen()
   await user.click(screen.getByRole('button', { name: 'Encerrar manifestação' }))
   const dialog = screen.getByRole('dialog', { name: 'Encerrar manifestação?' })
-  expect(within(dialog).getByText(/Novas mensagens e uploads de anexos do cliente serão bloqueados/)).toBeInTheDocument()
+  expect(within(dialog).getByText(/cliente não poderá enviar novas mensagens/)).toBeInTheDocument()
+  expect(within(dialog).queryByText(/anexos/i)).not.toBeInTheDocument()
   expect(within(dialog).getByRole('button', { name: 'Cancelar' })).toHaveFocus()
   await user.keyboard('{Escape}')
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
@@ -193,7 +200,7 @@ it('encerramento exige modal e aguarda HTTP 200 antes de bloquear novas resposta
   expect(await screen.findByText('Encerrada')).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Enviar resposta' })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Encerrar manifestação' })).not.toBeInTheDocument()
-  expect(screen.getByText(/novas mensagens e anexos não são permitidos/)).toBeInTheDocument()
+  expect(screen.getByText(/novas mensagens não são permitidas/)).toBeInTheDocument()
   await waitFor(() => {
     const keys = invalidate.mock.calls.map(([options]) => options?.queryKey)
     expect(keys).toContainEqual(['admin-report', fixtures.protocol])

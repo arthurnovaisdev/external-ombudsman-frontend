@@ -114,7 +114,7 @@ export function AdminUsersPage() {
         open={target !== null}
         title={target?.active ? 'Desativar usuário?' : 'Ativar usuário?'}
         description={target?.active
-          ? `Confirme a desativação de ${target.name}. A desativação invalida os tokens anteriores e impede novos acessos.`
+          ? `Confirme a desativação de ${target.name}. Os acessos existentes serão encerrados e novos acessos serão impedidos.`
           : `Confirme a ativação de ${target?.name ?? 'este usuário'}.`}
         confirmLabel={target?.active ? 'Confirmar desativação' : 'Confirmar ativação'}
         variant={target?.active ? 'destructive' : 'primary'}

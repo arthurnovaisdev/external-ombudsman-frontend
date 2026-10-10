@@ -35,7 +35,6 @@ export function ClientDashboardPage() {
           {reports.isPending ? <Skeleton width="4rem" height="2.5rem" label="Carregando total de manifestações" />
             : reports.isError ? <span className={styles.unavailable}>Indisponível</span>
               : <strong className={styles.totalNumber}>{new Intl.NumberFormat('pt-BR').format(reports.data.totalElements)}</strong>}
-          <p>Total informado pela paginação das suas manifestações.</p>
         </Card>
       </section>
 

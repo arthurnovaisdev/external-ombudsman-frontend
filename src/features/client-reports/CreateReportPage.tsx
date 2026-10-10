@@ -58,7 +58,7 @@ export function CreateReportPage() {
     queryKey: ['categories', 'report-form'],
     initialPageParam: 0,
     queryFn: ({ pageParam, signal }) => categoriesApi.list({ page: pageParam, size: categoryPageSize }, { signal }),
-    getNextPageParam: (lastPage, _pages, lastPageParam) => lastPage.content.length === categoryPageSize ? lastPageParam + 1 : undefined,
+    getNextPageParam: (lastPage) => lastPage.number + 1 < lastPage.totalPages ? lastPage.number + 1 : undefined,
     retry: false,
   })
   const activeCategories = categories.data?.pages.flatMap((page) => page.content.filter((category) => category.active)) ?? []
@@ -78,7 +78,7 @@ export function CreateReportPage() {
     try {
       const response = await clientReportsApi.create(body)
       if (typeof response?.protocol !== 'string' || response.protocol.length === 0) {
-        throw new ApiError('invalid-response', 201, 'O servidor não retornou um protocolo válido.')
+        throw new ApiError('invalid-response', 201, 'Não foi possível confirmar o registro. Tente novamente.')
       }
       void queryClient.invalidateQueries({ queryKey: ['client-reports'] })
       setProtocol(response.protocol)
@@ -169,12 +169,10 @@ export function CreateReportPage() {
                   {...register('incidentLocation', { validate: (value) => validate(locationSchema, value) })}
                 />
               </div>
-              <div className={styles.attachments} aria-label="Anexos">
+              {import.meta.env.VITE_ATTACHMENTS_ENABLED === 'true' && <div className={styles.attachments} aria-label="Anexos">
                 <h2>Anexos</h2>
-                <p>{import.meta.env.VITE_ATTACHMENTS_ENABLED === 'false' || !import.meta.env.VITE_ATTACHMENTS_ENABLED
-                  ? 'O envio de anexos está temporariamente indisponível.'
-                  : 'Anexos não fazem parte deste cadastro. O envio é separado após o registro.'}</p>
-              </div>
+                <p>O envio de anexos é separado do registro da manifestação.</p>
+              </div>}
               {submitError && <Alert tone="error">{submitError}</Alert>}
               <div className={styles.actions}>
                 <Button type="submit" busy={isSubmitting || isSending} disabled={categoryOptions.length === 0}>Registrar manifestação</Button>

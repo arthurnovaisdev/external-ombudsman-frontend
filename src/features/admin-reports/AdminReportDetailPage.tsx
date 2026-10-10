@@ -34,6 +34,9 @@ export function AdminReportDetailPage() {
 
 function AdminReportDetail({ protocol }: { protocol: string | undefined }) {
   const attachmentsEnabled = import.meta.env.VITE_ATTACHMENTS_ENABLED === 'true'
+  const closeWarning = attachmentsEnabled
+    ? 'Depois de encerrar, o cliente não poderá enviar novas mensagens ou anexos.'
+    : 'Depois de encerrar, o cliente não poderá enviar novas mensagens.'
   const [searchParams, setSearchParams] = useSearchParams()
   const page = pageFromSearch(searchParams.get('messagesPage'))
   const queryClient = useQueryClient()
@@ -212,7 +215,7 @@ function AdminReportDetail({ protocol }: { protocol: string | undefined }) {
               )}
             </section>
 
-            {report.data.closedAt ? <Alert tone="info">Esta manifestação está encerrada. O histórico permanece disponível para leitura, mas novas mensagens e anexos não são permitidos.</Alert>
+            {report.data.closedAt ? <Alert tone="info">Esta manifestação está encerrada. O histórico permanece disponível para leitura, mas novas mensagens não são permitidas.</Alert>
               : <>
                 <Card className={styles.messageFormCard}>
                   <h2>Responder ao cliente</h2>
@@ -229,14 +232,14 @@ function AdminReportDetail({ protocol }: { protocol: string | undefined }) {
                 </Card>
                 <section aria-labelledby="close-heading" className={styles.closeSection}>
                   <h2 id="close-heading">Encerramento</h2>
-                  <p>Ao encerrar, novas mensagens e uploads de anexos do cliente serão bloqueados.</p>
+                  <p>{closeWarning}</p>
                   {closeError && <Alert tone="error">{closeError}</Alert>}
                   <Button variant="destructive" disabled={isSubmitting || closePending} onClick={() => setCloseOpen(true)}>Encerrar manifestação</Button>
                 </section>
               </>}
           </>}
 
-      <ConfirmModal open={closeOpen} title="Encerrar manifestação?" description="Confirme o encerramento desta manifestação. Novas mensagens e uploads de anexos do cliente serão bloqueados. Esta ação não oferece reabertura." confirmLabel="Confirmar encerramento" pending={closePending} onCancel={() => setCloseOpen(false)} onConfirm={() => void confirmClose()} />
+      <ConfirmModal open={closeOpen} title="Encerrar manifestação?" description={`Confirme o encerramento desta manifestação. ${closeWarning} Esta ação não oferece reabertura.`} confirmLabel="Confirmar encerramento" pending={closePending} onCancel={() => setCloseOpen(false)} onConfirm={() => void confirmClose()} />
     </div>
   )
 }

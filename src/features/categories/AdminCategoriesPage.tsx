@@ -36,7 +36,7 @@ export function AdminCategoriesPage() {
         <Link className={styles.primaryLink} to="/admin/categorias/nova">Nova categoria</Link>
       </div>
 
-      <Alert tone="info">A API retorna somente categorias ativas. Categorias inativas não aparecem nem podem ser gerenciadas nesta tela.</Alert>
+      <Alert tone="info">Esta lista mostra apenas categorias ativas.</Alert>
 
       {categories.isPending || categories.isPlaceholderData ? <div className={styles.loadingList} aria-label="Carregando categorias"><Skeleton height="5rem" /><Skeleton height="5rem" /></div>
         : categories.isError ? <ErrorState description="Não foi possível carregar as categorias ativas." onRetry={() => void categories.refetch()} />

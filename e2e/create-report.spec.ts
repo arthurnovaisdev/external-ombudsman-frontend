@@ -34,7 +34,7 @@ for (const width of [375, 1280]) {
         const first = Array.from({ length: 50 }, (_, index) => ({
           id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`,
           name: `Categoria ${index}`,
-          active: index !== 0,
+          active: true,
         }))
         return route.fulfill({ status: 200, headers: cors, contentType: 'application/json', body: JSON.stringify({
           content: url.searchParams.get('page') === '0' ? first : [{ id: categoryId, name: 'Atendimento', active: true }],
@@ -54,7 +54,8 @@ for (const width of [375, 1280]) {
     await page.getByRole('button', { name: 'Entrar' }).click()
     await page.getByRole('link', { name: 'Nova manifestação' }).click()
     await expect(page.getByRole('heading', { name: 'Nova manifestação' })).toBeVisible()
-    await expect(page.getByText('O envio de anexos está temporariamente indisponível.')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Anexos' })).toHaveCount(0)
+    await expect(page.getByText('O envio de anexos está temporariamente indisponível.')).toHaveCount(0)
     await page.getByRole('button', { name: 'Carregar mais categorias' }).click()
     await expect(page.getByRole('option', { name: 'Atendimento' })).toBeAttached()
     await page.getByRole('combobox', { name: 'Categoria' }).selectOption(categoryId)

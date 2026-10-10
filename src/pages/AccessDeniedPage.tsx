@@ -11,7 +11,6 @@ export function AccessDeniedPage() {
         <span className={styles.eyebrow}>Acesso restrito</span>
         <h1>Acesso negado</h1>
         <p>Este perfil não pode abrir esta área.</p>
-        <p className={styles.note}>O bloqueio da navegação não substitui a autorização do servidor.</p>
         <Link to={user ? destinationFor(user) : '/login'}>Ir para minha área</Link>
       </Card>
     </main>

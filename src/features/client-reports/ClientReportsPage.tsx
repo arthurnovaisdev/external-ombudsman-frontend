@@ -29,7 +29,7 @@ export function ClientReportsPage() {
         <div>
           <span className={styles.eyebrow}>Área do cliente</span>
           <h1>Minhas manifestações</h1>
-          <p className={styles.lead}>Acompanhe seus registros na ordem apresentada pelo servidor.</p>
+          <p className={styles.lead}>Acompanhe suas manifestações, começando pelas mais recentes.</p>
         </div>
         <Link className={styles.secondaryLink} to="/client">Voltar ao início</Link>
       </div>

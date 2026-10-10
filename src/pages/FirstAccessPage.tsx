@@ -42,7 +42,7 @@ export function FirstAccessPage() {
           <Button type="submit" busy={isSubmitting}>Alterar senha</Button>
         </form>
         <Button variant="secondary" onClick={() => { logout(); navigate('/login', { replace: true }) }}>Sair</Button>
-        <p className={styles.note}>Após a alteração, o token atual é invalidado e será necessário entrar novamente.</p>
+        <p className={styles.note}>Depois de alterar a senha, entre novamente.</p>
       </Card>
     </main>
   )

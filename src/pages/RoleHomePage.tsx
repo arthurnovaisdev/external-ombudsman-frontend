@@ -11,8 +11,7 @@ export function RoleHomePage({ role }: { role: AppRole }) {
       <Card className={styles.card}>
         <span className={styles.eyebrow}>Ouvidoria MBFREIRE</span>
         <h1>{title}</h1>
-        <p>Olá, <span className={styles.longText}>{user?.name}</span>. Sua sessão está ativa apenas nesta aba.</p>
-        <p className={styles.note}>Esta página confirma a navegação protegida. O servidor continua responsável por autorizar cada recurso.</p>
+        <p>Olá, <span className={styles.longText}>{user?.name}</span>.</p>
       </Card>
     </section>
   )

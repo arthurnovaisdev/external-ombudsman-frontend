@@ -56,7 +56,7 @@ for (const width of [375, 1280]) {
     expect(await table.getByText(/criado em|data de criação/i).count()).toBe(0)
     await table.getByRole('button', { name: 'Desativar Cliente Exemplo' }).click()
     const dialog = page.getByRole('dialog', { name: 'Desativar usuário?' })
-    await expect(dialog.getByText(/invalida os tokens anteriores/)).toBeVisible()
+    await expect(dialog.getByText(/acessos existentes serão encerrados/)).toBeVisible()
     expect(deactivations).toBe(0)
     await dialog.getByRole('button', { name: 'Confirmar desativação' }).click()
     await expect(table.getByRole('button', { name: 'Ativar Cliente Exemplo' })).toBeVisible()

@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (attempt !== generation.current) throw new ApiError('cancelled', null)
       if (!profile.active) throw new ApiError('unauthorized', 401, 'Usuário desativado ou não autorizado.')
       if (!isAppRole(profile.role) || profile.role !== response.role || profile.passwordChanged !== response.passwordChanged) {
-        throw new ApiError('invalid-response', null, 'Os dados da sessão não coincidem com o perfil.')
+        throw new ApiError('invalid-response', null, 'Não foi possível confirmar sua conta. Entre novamente.')
       }
       setUser(profile)
       return profile
