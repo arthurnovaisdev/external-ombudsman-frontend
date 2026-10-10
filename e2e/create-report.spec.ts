@@ -38,6 +38,7 @@ for (const width of [375, 1280]) {
         }))
         return route.fulfill({ status: 200, headers: cors, contentType: 'application/json', body: JSON.stringify({
           content: url.searchParams.get('page') === '0' ? first : [{ id: categoryId, name: 'Atendimento', active: true }],
+          number: Number(url.searchParams.get('page') ?? 0), size: 50, totalElements: 51, totalPages: 2,
         }) })
       }
       if (url.pathname === '/api/reports' && request.method() === 'POST') {

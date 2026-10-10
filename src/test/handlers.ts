@@ -48,13 +48,6 @@ const adminDetail: ReportAdminResponseDTO = {
   ownerContactEmail: null, attachments: [fixtures.attachment],
 }
 
-function page<T>(request: Request, items: readonly T[]): { content: T[] } {
-  const url = new URL(request.url)
-  const number = Number(url.searchParams.get('page') ?? 0)
-  const size = Number(url.searchParams.get('size') ?? 10)
-  return { content: items.slice(number * size, (number + 1) * size) }
-}
-
 function reportPage<T>(request: Request, items: readonly T[]) {
   const url = new URL(request.url)
   const number = Number(url.searchParams.get('page') ?? 0)
@@ -119,8 +112,14 @@ export const handlers: HttpHandler[] = [
   http.get(`${origin}/api/users/:id`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(fixtures.user)),
   http.patch(`${origin}/api/users/:id/deactivate`, ({ request }) => deny(request, 'ADMIN') ?? new HttpResponse(null, { status: 204 })),
   http.patch(`${origin}/api/users/:id/activate`, ({ request }) => deny(request, 'ADMIN') ?? new HttpResponse(null, { status: 204 })),
-  http.get(`${origin}/api/categories`, ({ request }) => deny(request) ?? HttpResponse.json(page(request, [fixtures.category]))),
-  http.post(`${origin}/api/categories`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(fixtures.category, { status: 201 })),
+  http.get(`${origin}/api/categories`, ({ request }) => deny(request) ?? HttpResponse.json(reportPage(request, [fixtures.category]))),
+  http.post(`${origin}/api/categories`, async ({ request }) => {
+    const denied = deny(request, 'ADMIN')
+    if (denied) return denied
+    const body = await request.json() as { name?: string; active?: boolean }
+    if (!body.name?.trim() || body.name.length > 100) return HttpResponse.json({ status: 400, detalhes: { name: 'O nome da categoria deve ter no máximo 100 caracteres.' }, timestamp }, { status: 400 })
+    return HttpResponse.json({ ...fixtures.category, name: body.name.trim(), active: body.active === true }, { status: 201 })
+  }),
   http.post(`${origin}/api/reports`, async ({ request }) => {
     const denied = deny(request, 'CLIENT')
     if (denied) return denied

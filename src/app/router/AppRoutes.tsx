@@ -8,7 +8,6 @@ import { ForgotPasswordPage } from '../../pages/ForgotPasswordPage'
 import { ResetPasswordPage } from '../../pages/ResetPasswordPage'
 import { AccountPage } from '../../pages/AccountPage'
 import { AccessDeniedPage } from '../../pages/AccessDeniedPage'
-import { SectionPage } from '../../pages/SectionPage'
 import { ClientLayout } from '../layouts/ClientLayout'
 import { AdminLayout } from '../layouts/AdminLayout'
 import { ClientDashboardPage } from '../../features/client-reports/ClientDashboardPage'
@@ -20,6 +19,8 @@ import { AdminReportsPage } from '../../features/admin-reports/AdminReportsPage'
 import { AdminReportDetailPage } from '../../features/admin-reports/AdminReportDetailPage'
 import { AdminUsersPage } from '../../features/users/AdminUsersPage'
 import { CreateClientPage } from '../../features/users/CreateClientPage'
+import { AdminCategoriesPage } from '../../features/categories/AdminCategoriesPage'
+import { CreateCategoryPage } from '../../features/categories/CreateCategoryPage'
 import { useAuth } from '../../features/auth/AuthProvider'
 import { PublicOnly, RequireAuthenticated, RequireFirstAccess, RequirePasswordChanged, RequireRole } from './guards'
 
@@ -67,7 +68,8 @@ export function AppRoutes({ initialResetToken }: { initialResetToken?: string | 
               <Route path="manifestacoes/:protocol" element={<AdminReportDetailPage />} />
               <Route path="clientes" element={<AdminUsersPage />} />
               <Route path="clientes/novo" element={<CreateClientPage />} />
-              <Route path="categorias" element={<SectionPage title="Categorias" />} />
+              <Route path="categorias" element={<AdminCategoriesPage />} />
+              <Route path="categorias/nova" element={<CreateCategoryPage />} />
               <Route path="conta" element={<AccountPage />} />
             </Route>
           </Route>

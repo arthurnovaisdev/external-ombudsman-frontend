@@ -72,7 +72,7 @@ it('carrega mais de 50 categorias e oferece somente as ativas', async () => {
     const url = new URL(request.url)
     pages.push(Number(url.searchParams.get('page')))
     expect(url.searchParams.get('size')).toBe('50')
-    return HttpResponse.json({ content: pages.at(-1) === 0 ? firstPage : [fixtures.category] })
+    return HttpResponse.json({ content: pages.at(-1) === 0 ? firstPage : [fixtures.category], number: pages.at(-1), size: 50, totalElements: 51, totalPages: 2 })
   }))
   renderFlow()
   const user = await openForm()
