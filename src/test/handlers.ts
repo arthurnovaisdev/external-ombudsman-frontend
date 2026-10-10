@@ -132,13 +132,29 @@ export const handlers: HttpHandler[] = [
     return HttpResponse.json({ protocol }, { status: 201 })
   }),
   http.get(`${origin}/api/reports/mine`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json(reportPage(request, [fixtures.report, fixtures.closedReport]))),
-  http.get(`${origin}/api/reports/mine/:protocol`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json(fixtures.report)),
+  http.get(`${origin}/api/reports/mine/:protocol`, ({ request, params }) =>
+    deny(request, 'CLIENT') ?? (params.protocol === fixtures.report.protocol || params.protocol === fixtures.closedReport.protocol
+      ? HttpResponse.json(params.protocol === fixtures.closedReport.protocol ? fixtures.closedReport : fixtures.report)
+      : error(404, 'Manifestação não encontrada.'))),
   http.get(`${origin}/api/reports/admin`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(page(request, [fixtures.summary]))),
   http.get(`${origin}/api/reports/admin/:protocol`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(adminDetail)),
   http.post(`${origin}/api/reports/admin/:protocol/close`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json({ ...adminDetail, closedAt: fixtures.closedReport.closedAt })),
-  http.get(`${origin}/api/reports/mine/:protocol/messages`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json(page(request, [fixtures.message]))),
+  http.get(`${origin}/api/reports/mine/:protocol/messages`, ({ request, params }) =>
+    deny(request, 'CLIENT') ?? (params.protocol === fixtures.report.protocol || params.protocol === fixtures.closedReport.protocol
+      ? HttpResponse.json(reportPage(request, params.protocol === fixtures.closedReport.protocol ? [] : [fixtures.message]))
+      : error(404, 'Manifestação não encontrada.'))),
   http.get(`${origin}/api/reports/admin/:protocol/messages`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(page(request, [fixtures.message]))),
-  http.post(`${origin}/api/reports/mine/:protocol/messages`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json(fixtures.message, { status: 201 })),
+  http.post(`${origin}/api/reports/mine/:protocol/messages`, async ({ request, params }) => {
+    const denied = deny(request, 'CLIENT')
+    if (denied) return denied
+    if (params.protocol !== fixtures.report.protocol && params.protocol !== fixtures.closedReport.protocol) return error(404, 'Manifestação não encontrada.')
+    if (params.protocol === fixtures.closedReport.protocol) return error(400, 'Não é possível enviar mensagens para uma manifestação encerrada.')
+    const body = await request.json() as { body?: string }
+    if (!body.body?.trim() || body.body.length > 10_000) {
+      return HttpResponse.json({ status: 400, detalhes: { body: 'A mensagem deve possuir no máximo 10000 caracteres.' }, timestamp }, { status: 400 })
+    }
+    return HttpResponse.json({ ...fixtures.message, body: body.body.trim() }, { status: 201 })
+  }),
   http.post(`${origin}/api/reports/admin/:protocol/messages`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(fixtures.message, { status: 201 })),
   http.post(`${origin}/api/reports/mine/:protocol/attachments`, ({ request }) => deny(request, 'CLIENT') ?? error(503, 'O envio de anexos está temporariamente indisponível.')),
   http.get(`${origin}/api/reports/mine/:protocol/attachments/:id`, ({ request }) => deny(request, 'CLIENT') ?? error(503, 'A recuperação de anexos está temporariamente indisponível.')),

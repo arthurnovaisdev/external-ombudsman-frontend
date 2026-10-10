@@ -33,6 +33,16 @@
 .detailFields dt { color: var(--color-text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 .detailFields dd { margin: var(--space-1) 0 0; overflow-wrap: anywhere; }
 .fullDescription { white-space: pre-wrap; }
+.messagesSection { display: grid; gap: var(--space-4); width: min(100%, 55rem); }
+.messageList { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+.messageCard { display: grid; gap: var(--space-3); }
+.messageMeta { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); color: var(--color-text-muted); font-size: 0.875rem; }
+.messageMeta strong { color: var(--color-text); }
+.messageBody { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.messageFormCard { display: grid; gap: var(--space-4); width: min(100%, 55rem); }
+.messageFormCard h2 { margin: 0; font-size: 1.25rem; }
+.messageForm { display: grid; justify-items: start; gap: var(--space-4); }
+.messageForm > div { width: 100%; }
 @media (min-width: 45rem) {
   .reportList, .loadingList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .detailFields { grid-template-columns: repeat(2, minmax(0, 1fr)); }

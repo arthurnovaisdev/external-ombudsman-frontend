@@ -75,6 +75,9 @@ it('lista páginas reais sem reordenar e navega ao detalhe próprio', async () =
     const parsed = new URL(request.url)
     calls.push(parsed.search)
     return HttpResponse.json(page(reports, Number(parsed.searchParams.get('page')), Number(parsed.searchParams.get('size'))))
+  }), http.get(`${url}/:protocol`, ({ params }) => {
+    const report = reports.find((item) => item.protocol === params.protocol)
+    return report ? HttpResponse.json(report) : HttpResponse.json({ status: 404, erro: 'Manifestação não encontrada.', timestamp: '2026-10-09T10:00:00' }, { status: 404 })
   }))
   renderFlow()
   const user = await login()
@@ -94,7 +97,7 @@ it('lista páginas reais sem reordenar e navega ao detalhe próprio', async () =
   expect(screen.getByRole('button', { name: 'Próxima' })).toBeDisabled()
   await user.click(screen.getAllByRole('link', { name: /Ver detalhes da manifestação/ })[0])
   expect(await screen.findByRole('heading', { name: 'Detalhes da manifestação' })).toBeInTheDocument()
-  expect(screen.getByText('Relato de teste')).toBeInTheDocument()
+  expect(screen.getByText(reports[10].description)).toBeInTheDocument()
 })
 
 it('mostra estados vazios no dashboard e na listagem', async () => {
