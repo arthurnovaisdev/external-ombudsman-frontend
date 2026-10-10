@@ -115,7 +115,7 @@ export const handlers: HttpHandler[] = [
     } satisfies UserResponseDTO)
   }),
   http.patch(`${origin}/api/users/me/password`, ({ request }) => deny(request, 'ANY', true) ?? new HttpResponse(null, { status: 204 })),
-  http.get(`${origin}/api/users`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(page(request, [fixtures.user]))),
+  http.get(`${origin}/api/users`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(reportPage(request, [fixtures.user]))),
   http.get(`${origin}/api/users/:id`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(fixtures.user)),
   http.patch(`${origin}/api/users/:id/deactivate`, ({ request }) => deny(request, 'ADMIN') ?? new HttpResponse(null, { status: 204 })),
   http.patch(`${origin}/api/users/:id/activate`, ({ request }) => deny(request, 'ADMIN') ?? new HttpResponse(null, { status: 204 })),

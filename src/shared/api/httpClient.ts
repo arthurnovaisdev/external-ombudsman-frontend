@@ -15,7 +15,7 @@ export interface HttpClientConfig {
 }
 
 type Body = { kind: 'json'; value: unknown } | { kind: 'form'; value: FormData }
-type Result = 'json' | 'created' | 'void' | 'no-content' | 'blob'
+type Result = 'json' | 'created' | 'created-void' | 'void' | 'no-content' | 'blob'
 
 export class HttpClient {
   private readonly baseUrl: string
@@ -42,6 +42,10 @@ export class HttpClient {
     return this.send<T>('POST', path, 'created', { kind: 'json', value }, options)
   }
 
+  postCreatedVoid(path: string, value: unknown, options?: RequestOptions): Promise<void> {
+    return this.send<void>('POST', path, 'created-void', { kind: 'json', value }, options)
+  }
+
   postEmpty<T>(path: string, options?: RequestOptions): Promise<T> {
     return this.send<T>('POST', path, 'json', undefined, options)
   }
@@ -56,6 +60,10 @@ export class HttpClient {
 
   patchNoContent(path: string, value: unknown, options?: RequestOptions): Promise<void> {
     return this.send<void>('PATCH', path, 'no-content', { kind: 'json', value }, options)
+  }
+
+  patchNoContentEmpty(path: string, options?: RequestOptions): Promise<void> {
+    return this.send<void>('PATCH', path, 'no-content', undefined, options)
   }
 
   postFormData(path: string, value: FormData, options?: RequestOptions): Promise<void> {
@@ -101,6 +109,10 @@ export class HttpClient {
         throw httpError(response.status, payload, response.headers.get('Retry-After'))
       }
       if (result === 'created' && response.status !== 201) throw new ApiError('invalid-response', response.status)
+      if (result === 'created-void') {
+        if (response.status !== 201) throw new ApiError('invalid-response', response.status)
+        return undefined as T
+      }
       if (result === 'no-content') {
         if (response.status !== 204) throw new ApiError('invalid-response', response.status)
         return undefined as T

@@ -18,6 +18,8 @@ import { CreateReportPage } from '../../features/client-reports/CreateReportPage
 import { AdminDashboardPage } from '../../features/admin-reports/AdminDashboardPage'
 import { AdminReportsPage } from '../../features/admin-reports/AdminReportsPage'
 import { AdminReportDetailPage } from '../../features/admin-reports/AdminReportDetailPage'
+import { AdminUsersPage } from '../../features/users/AdminUsersPage'
+import { CreateClientPage } from '../../features/users/CreateClientPage'
 import { useAuth } from '../../features/auth/AuthProvider'
 import { PublicOnly, RequireAuthenticated, RequireFirstAccess, RequirePasswordChanged, RequireRole } from './guards'
 
@@ -63,7 +65,8 @@ export function AppRoutes({ initialResetToken }: { initialResetToken?: string | 
               <Route index element={<AdminDashboardPage />} />
               <Route path="manifestacoes" element={<AdminReportsPage />} />
               <Route path="manifestacoes/:protocol" element={<AdminReportDetailPage />} />
-              <Route path="clientes" element={<SectionPage title="Clientes" />} />
+              <Route path="clientes" element={<AdminUsersPage />} />
+              <Route path="clientes/novo" element={<CreateClientPage />} />
               <Route path="categorias" element={<SectionPage title="Categorias" />} />
               <Route path="conta" element={<AccountPage />} />
             </Route>
