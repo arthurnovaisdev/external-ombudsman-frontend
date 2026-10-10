@@ -4,7 +4,7 @@ import type { ProtocolResponseDTO, ReportRequestDTO, ReportResponseDTO } from '.
 
 export const clientReportsApi = {
   create: (body: ReportRequestDTO, options?: RequestOptions) =>
-    httpClient.post<ProtocolResponseDTO>('/api/reports', body, options),
+    httpClient.postCreated<ProtocolResponseDTO>('/api/reports', body, options),
   list: async (page: PageRequest = {}, options?: RequestOptions) =>
     decodePageWithTotals<ReportResponseDTO>(await httpClient.get<unknown>(pageQuery('/api/reports/mine', page), options)),
   detail: (protocol: string, options?: RequestOptions) =>

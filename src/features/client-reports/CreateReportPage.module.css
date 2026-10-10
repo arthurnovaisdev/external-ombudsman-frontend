@@ -1,0 +1,20 @@
+.page { display: grid; gap: var(--space-7); min-width: 0; }
+.pageHeader { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-5); }
+.pageHeader > div { min-width: 0; }
+.eyebrow { color: var(--color-accent); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.pageHeader h1, .confirmation h1 { margin: var(--space-2) 0; font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.15; }
+.pageHeader p, .confirmation p { margin: 0; color: var(--color-text-muted); }
+.formCard { width: min(100%, 48rem); }
+.form { display: grid; gap: var(--space-6); }
+.optionalFields { display: grid; gap: var(--space-5); }
+.attachments { padding: var(--space-5); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-raised); }
+.attachments h2 { margin: 0 0 var(--space-2); font-size: 1rem; }
+.attachments p { margin: 0; color: var(--color-text-muted); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.primaryLink, .secondaryLink { display: inline-flex; align-items: center; justify-content: center; width: fit-content; min-height: 2.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); padding: 0 var(--space-4); font-weight: 700; text-decoration: none; }
+.primaryLink { background: var(--color-accent); color: var(--color-accent-text); }
+.primaryLink:hover { background: var(--color-accent-hover); }
+.secondaryLink { border-color: var(--color-border-strong); background: var(--color-surface-raised); color: var(--color-text); }
+.secondaryLink:hover { border-color: var(--color-accent); }
+.confirmation { display: grid; gap: var(--space-5); width: min(100%, 38rem); }
+@media (min-width: 45rem) { .optionalFields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

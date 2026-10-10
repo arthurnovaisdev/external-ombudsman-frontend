@@ -1,6 +1,6 @@
 # Ouvidoria MBFREIRE — frontend
 
-Frontend React e TypeScript da Ouvidoria MBFREIRE. A fundação, os contratos HTTP, o design system, a autenticação, o dashboard do cliente e a listagem das próprias manifestações estão implementados. A área ADMIN e a criação de manifestação ainda são páginas estruturais.
+Frontend React e TypeScript da Ouvidoria MBFREIRE. A fundação, os contratos HTTP, o design system, a autenticação, o dashboard do cliente, a listagem e o cadastro das próprias manifestações estão implementados. A área ADMIN ainda é estrutural.
 
 ## Desenvolvimento
 
@@ -34,7 +34,9 @@ As rotas públicas, autenticadas, de primeiro acesso, CLIENT e ADMIN são proteg
 
 Os layouts autenticados são separados por perfil. `CLIENT` vê Início, Manifestações e Minha conta; `ADMIN` vê Dashboard, Manifestações, Clientes, Categorias e Minha conta. Ambos oferecem Sair local. O cabeçalho desktop e o menu móvel indicam a rota ativa; há skip link, foco visível e fechamento do menu por Escape. Nomes longos são truncados visualmente no cabeçalho desktop, mas permanecem completos para tecnologias assistivas e no menu móvel. Durante a consulta a `/api/users/me`, o login informa que o perfil está carregando. A rota antiga `/account` redireciona à conta do perfil autenticado.
 
-O dashboard CLIENT consulta `/api/users/me` e a primeira página de `/api/reports/mine?page=0&size=5`. O total exibido vem de `totalElements`; não há contadores globais por situação. A listagem usa `page` na URL, tamanho fixo de 10, metadados do servidor e a ordenação definida pelo controller (`createdAt` decrescente), sem filtros ou ordenação local. O detalhe consulta `/api/reports/mine/{protocol}`. O botão “Nova manifestação” leva a uma página explicitamente não funcional até a implementação do formulário.
+O dashboard CLIENT consulta `/api/users/me` e a primeira página de `/api/reports/mine?page=0&size=5`. O total exibido vem de `totalElements`; não há contadores globais por situação. A listagem usa `page` na URL, tamanho fixo de 10, metadados do servidor e a ordenação definida pelo controller (`createdAt` decrescente), sem filtros ou ordenação local. O detalhe consulta `/api/reports/mine/{protocol}`.
+
+O cadastro carrega `GET /api/categories?page&size` em páginas de 50, com ação para carregar páginas adicionais e exibindo apenas categorias ativas. Envia somente os quatro campos de `ReportRequestDTO` em JSON para `POST /api/reports`. A confirmação só aparece após HTTP 201 com protocolo válido; lista e dashboard são invalidados. Categoria removida ou inativa, validação e limite de requisições têm tratamento próprio. Com `VITE_ATTACHMENTS_ENABLED=false`, o formulário informa que anexos estão indisponíveis e não tenta upload. O envelope das categorias usa somente `content`; o teste HTTP com backend real permanece pendente.
 
 As páginas públicas `/esqueci-senha` e `/reset-password` usam os endpoints existentes. A solicitação de recuperação envia apenas `username` e apresenta uma resposta genérica, sem indicar a existência ou o estado da conta. O token do link de redefinição é capturado na inicialização e removido da URL antes da renderização; a página aplica `no-referrer` e envia somente `token` e `newPassword`. A confirmação é local. A entrega do HTML pelo servidor de hospedagem deve manter uma política de referer igualmente restritiva, pois o frontend não controla os cabeçalhos da resposta inicial.
 

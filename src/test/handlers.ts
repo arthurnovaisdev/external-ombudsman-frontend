@@ -121,7 +121,16 @@ export const handlers: HttpHandler[] = [
   http.patch(`${origin}/api/users/:id/activate`, ({ request }) => deny(request, 'ADMIN') ?? new HttpResponse(null, { status: 204 })),
   http.get(`${origin}/api/categories`, ({ request }) => deny(request) ?? HttpResponse.json(page(request, [fixtures.category]))),
   http.post(`${origin}/api/categories`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(fixtures.category, { status: 201 })),
-  http.post(`${origin}/api/reports`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json({ protocol }, { status: 201 })),
+  http.post(`${origin}/api/reports`, async ({ request }) => {
+    const denied = deny(request, 'CLIENT')
+    if (denied) return denied
+    const body = await request.json() as Record<string, unknown>
+    if (body.categoryId !== fixtures.category.id) return error(404, 'Categoria não encontrada.')
+    if (typeof body.description !== 'string' || !body.description.trim() || body.description.length > 5000) {
+      return HttpResponse.json({ status: 400, detalhes: { description: 'A descrição deve ter entre 1 e 5000 caracteres.' }, timestamp }, { status: 400 })
+    }
+    return HttpResponse.json({ protocol }, { status: 201 })
+  }),
   http.get(`${origin}/api/reports/mine`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json(reportPage(request, [fixtures.report, fixtures.closedReport]))),
   http.get(`${origin}/api/reports/mine/:protocol`, ({ request }) => deny(request, 'CLIENT') ?? HttpResponse.json(fixtures.report)),
   http.get(`${origin}/api/reports/admin`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(page(request, [fixtures.summary]))),
