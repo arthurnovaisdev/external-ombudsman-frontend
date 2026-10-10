@@ -8,6 +8,8 @@ Requer Node.js compatível com Vite 8. Instale as dependências com `npm install
 
 Copie os valores públicos de `.env.example` para a configuração local. `VITE_API_BASE_URL` aponta para o backend e `VITE_ATTACHMENTS_ENABLED` permanece `false` no MVP. O frontend não deve conter segredos.
 
+A identidade visual usa uma única cópia da logo em `src/shared/assets/mbfreire-logo.png` para as telas públicas e o cabeçalho autenticado. O favicon fornecido está em `public/logo.ico` e é referenciado por `index.html`.
+
 ## Verificações
 
 | Comando | Objetivo |

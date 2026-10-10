@@ -48,6 +48,10 @@ for (const role of ['CLIENT', 'ADMIN'] as const) {
       await page.getByLabel('Senha').fill('senha-correta')
       await page.getByRole('button', { name: 'Entrar' }).click()
       await expect(page.getByRole('heading', { name: role === 'ADMIN' ? 'Dashboard' : 'Área do cliente' })).toBeVisible()
+      const brand = page.getByRole('link', { name: 'Ouvidoria MBFREIRE — início' })
+      const logo = brand.locator('img')
+      await expect(logo).toBeVisible()
+      expect(await logo.evaluate((image: HTMLImageElement) => image.naturalWidth === 1254 && image.naturalHeight === 1254)).toBe(true)
 
       const menu = page.getByRole('button', { name: 'Menu' })
       if (width < 1088) {

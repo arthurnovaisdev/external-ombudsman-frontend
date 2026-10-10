@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { authApi } from '../features/auth/api'
 import { validateUsername } from '../features/auth/validation'
 import { ApiError } from '../shared/api/errors'
-import { Alert, Button, Card, TextField } from '../shared/components'
+import { Alert, BrandLogo, Button, Card, TextField } from '../shared/components'
 import styles from './SessionPages.module.css'
 
 interface FormValues { username: string }
@@ -32,7 +32,7 @@ export function ForgotPasswordPage() {
   return (
     <main className={styles.page}>
       <Card className={styles.card}>
-        <div className={styles.brand}><span className={styles.mark} aria-hidden="true">mb</span> MB.FREIRE</div>
+        <div className={styles.brand}><BrandLogo className={styles.mark} /> MB.FREIRE</div>
         <h1>Esqueci minha senha</h1>
         <p className={styles.intro}>Informe seu username para solicitar a recuperação de acesso.</p>
         {submitted ? <Alert tone="success">Se a conta estiver apta, você receberá as instruções de recuperação no e-mail cadastrado.</Alert> : (

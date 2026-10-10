@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '../features/auth/api'
 import { validateNewPassword } from '../features/auth/validation'
 import { ApiError } from '../shared/api/errors'
-import { Alert, Button, Card, PasswordField } from '../shared/components'
+import { Alert, BrandLogo, Button, Card, PasswordField } from '../shared/components'
 import styles from './SessionPages.module.css'
 
 interface FormValues { newPassword: string; confirmPassword: string }
@@ -41,7 +41,7 @@ export function ResetPasswordPage({ token: initialToken }: { token: string | nul
   return (
     <main className={styles.page}>
       <Card className={styles.card}>
-        <div className={styles.brand}><span className={styles.mark} aria-hidden="true">mb</span> MB.FREIRE</div>
+        <div className={styles.brand}><BrandLogo className={styles.mark} /> MB.FREIRE</div>
         <h1>Redefinir senha</h1>
         {!token ? <Alert tone="error">Link inválido ou ausente. Solicite uma nova recuperação.</Alert> : (
           <>

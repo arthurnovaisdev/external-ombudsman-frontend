@@ -19,15 +19,11 @@
 }
 
 .brandMark {
-  width: 2rem;
-  height: 2rem;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--color-accent);
-  color: var(--color-accent-text);
-  font-size: 0.8rem;
-  letter-spacing: -0.08em;
+  display: block;
+  flex: none;
+  width: 3.25rem;
+  height: 3.25rem;
+  object-fit: contain;
 }
 
 .content {

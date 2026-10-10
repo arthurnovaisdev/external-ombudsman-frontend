@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { destinationFor, useAuth } from '../features/auth/AuthProvider'
 import { validateLoginPassword, validateUsername } from '../features/auth/validation'
 import { ApiError } from '../shared/api/errors'
-import { Alert, Button, Card, PasswordField, Skeleton, TextField } from '../shared/components'
+import { Alert, BrandLogo, Button, Card, PasswordField, Skeleton, TextField } from '../shared/components'
 import styles from './SessionPages.module.css'
 
 interface Credentials { username: string; password: string }
@@ -29,7 +29,7 @@ export function LoginPage() {
   return (
     <main className={styles.page}>
       <Card className={styles.card}>
-        <div className={styles.brand}><span className={styles.mark} aria-hidden="true">mb</span> MB.FREIRE</div>
+        <div className={styles.brand}><BrandLogo className={styles.mark} /> MB.FREIRE</div>
         <h1>Entrar na Ouvidoria</h1>
         <p className={styles.intro}>Acesso exclusivo para clientes cadastrados e equipe autorizada.</p>
         {passwordChangedNotice && <Alert tone="success">Senha alterada. Entre novamente.</Alert>}

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/AuthProvider'
 import { validateCurrentPassword, validateNewPassword } from '../features/auth/validation'
 import { ApiError } from '../shared/api/errors'
-import { Alert, Button, Card, PasswordField } from '../shared/components'
+import { Alert, BrandLogo, Button, Card, PasswordField } from '../shared/components'
 import styles from './SessionPages.module.css'
 
 interface PasswordForm { currentPassword: string; newPassword: string; confirmPassword: string }
@@ -31,7 +31,7 @@ export function FirstAccessPage() {
   return (
     <main className={styles.page}>
       <Card className={styles.card}>
-        <div className={styles.brand}><span className={styles.mark} aria-hidden="true">mb</span> MB.FREIRE</div>
+        <div className={styles.brand}><BrandLogo className={styles.mark} /> MB.FREIRE</div>
         <h1>Alterar senha provisória</h1>
         <Alert tone="warning">Antes de utilizar o sistema, substitua sua senha provisória.</Alert>
         {serverError && <Alert tone="error">{serverError}</Alert>}

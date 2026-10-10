@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  Alert, Button, Card, ConfirmModal, DateField, EmptyState, ErrorState,
+  Alert, BrandLogo, Button, Card, ConfirmModal, DateField, EmptyState, ErrorState,
   Pagination, PasswordField, Protocol, ResponsiveTable, SelectField,
   Skeleton, StatusBadge, TextAreaField, TextField, useToast,
 } from '../shared/components'
@@ -14,7 +14,7 @@ export function DesignSystemPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <div className={styles.brand}><span className={styles.mark} aria-hidden="true">mb</span><span>MB.FREIRE</span></div>
+        <div className={styles.brand}><BrandLogo className={styles.mark} /><span>MB.FREIRE</span></div>
         <span className={styles.eyebrow}>Prévia visual · ambiente de desenvolvimento</span>
         <h1>Ouvidoria MBFREIRE</h1>
         <p>Componentes compartilhados. Os exemplos abaixo não representam dados nem operações reais.</p>

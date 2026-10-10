@@ -1,11 +1,12 @@
 import styles from './FoundationPage.module.css'
 import { Link } from 'react-router-dom'
+import { BrandLogo } from '../shared/components'
 
 export function FoundationPage() {
   return (
     <main className={styles.page}>
-      <div className={styles.brand} aria-label="MB.FREIRE">
-        <span className={styles.brandMark} aria-hidden="true">MB</span>
+      <div className={styles.brand}>
+        <BrandLogo className={styles.brandMark} />
         <span>MB.FREIRE</span>
       </div>
       <section className={styles.content} aria-labelledby="page-title">

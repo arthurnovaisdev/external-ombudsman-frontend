@@ -31,6 +31,7 @@ afterEach(() => {
 
 it('valida username e tamanho da senha antes do login', async () => {
   renderPage('/login')
+  expect(screen.getByText('MB.FREIRE').parentElement?.querySelector('img')).toHaveAttribute('alt', '')
   expect(screen.queryByText(/A sessão permanece apenas nesta aba/)).not.toBeInTheDocument()
   const user = userEvent.setup()
   await user.type(screen.getByRole('textbox', { name: 'Username' }), 'ab!')

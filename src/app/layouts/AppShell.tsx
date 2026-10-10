@@ -1,7 +1,7 @@
 import { useId, useRef, useState, type KeyboardEvent } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth, type AppRole } from '../../features/auth/AuthProvider'
-import { Skeleton } from '../../shared/components'
+import { BrandLogo, Skeleton } from '../../shared/components'
 import styles from './AppShell.module.css'
 
 export interface NavigationItem { label: string; to: string; end?: boolean }
@@ -53,7 +53,7 @@ export function AppShell({ role, home, items }: AppShellProps) {
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link className={styles.brand} to={home} aria-label="Ouvidoria MBFREIRE — início">
-            <span className={styles.mark} aria-hidden="true">mb</span>
+            <BrandLogo className={styles.mark} />
             <span className={styles.brandText}><strong>MB.FREIRE</strong><small>OUVIDORIA</small></span>
           </Link>
 
