@@ -6,7 +6,6 @@ import { LoginPage } from '../../pages/LoginPage'
 import { FirstAccessPage } from '../../pages/FirstAccessPage'
 import { ForgotPasswordPage } from '../../pages/ForgotPasswordPage'
 import { ResetPasswordPage } from '../../pages/ResetPasswordPage'
-import { RoleHomePage } from '../../pages/RoleHomePage'
 import { AccountPage } from '../../pages/AccountPage'
 import { AccessDeniedPage } from '../../pages/AccessDeniedPage'
 import { SectionPage } from '../../pages/SectionPage'
@@ -16,6 +15,8 @@ import { ClientDashboardPage } from '../../features/client-reports/ClientDashboa
 import { ClientReportsPage } from '../../features/client-reports/ClientReportsPage'
 import { ClientReportDetailPage } from '../../features/client-reports/ClientReportDetailPage'
 import { CreateReportPage } from '../../features/client-reports/CreateReportPage'
+import { AdminDashboardPage } from '../../features/admin-reports/AdminDashboardPage'
+import { AdminReportsPage } from '../../features/admin-reports/AdminReportsPage'
 import { useAuth } from '../../features/auth/AuthProvider'
 import { PublicOnly, RequireAuthenticated, RequireFirstAccess, RequirePasswordChanged, RequireRole } from './guards'
 
@@ -58,8 +59,8 @@ export function AppRoutes({ initialResetToken }: { initialResetToken?: string | 
           </Route>
           <Route element={<RequireRole role="ADMIN" />}>
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<RoleHomePage role="ADMIN" />} />
-              <Route path="manifestacoes" element={<SectionPage title="Manifestações" />} />
+              <Route index element={<AdminDashboardPage />} />
+              <Route path="manifestacoes" element={<AdminReportsPage />} />
               <Route path="clientes" element={<SectionPage title="Clientes" />} />
               <Route path="categorias" element={<SectionPage title="Categorias" />} />
               <Route path="conta" element={<AccountPage />} />

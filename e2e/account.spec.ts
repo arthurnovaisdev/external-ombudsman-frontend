@@ -42,7 +42,7 @@ for (const role of ['CLIENT', 'ADMIN'] as const) {
     await page.getByRole('textbox', { name: 'Username' }).fill(username)
     await page.getByLabel('Senha').fill('senha-correta')
     await page.getByRole('button', { name: 'Entrar' }).click()
-    await expect(page.getByRole('heading', { name: role === 'CLIENT' ? 'Área do cliente' : 'Área administrativa' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: role === 'CLIENT' ? 'Área do cliente' : 'Dashboard' })).toBeVisible()
     if (role === 'CLIENT') await page.getByRole('button', { name: 'Menu' }).click()
     await page.getByRole('link', { name: 'Minha conta', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Dados da conta' })).toBeVisible()

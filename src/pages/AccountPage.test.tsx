@@ -29,7 +29,7 @@ async function openAccount(username: 'cliente' | 'admin') {
   await user.type(screen.getByRole('textbox', { name: 'Username' }), username)
   await user.type(screen.getByLabelText(/^Senha/), 'senha-correta')
   await user.click(screen.getByRole('button', { name: 'Entrar' }))
-  await screen.findByRole('heading', { name: username === 'admin' ? 'Área administrativa' : 'Área do cliente' })
+  await screen.findByRole('heading', { name: username === 'admin' ? 'Dashboard' : 'Área do cliente' })
   await user.click(screen.getByRole('button', { name: 'Menu' }))
   await user.click(within(screen.getByRole('navigation', { name: username === 'admin' ? 'Navegação administrativa' : 'Navegação do cliente' })).getByRole('link', { name: 'Minha conta' }))
   await screen.findByRole('heading', { name: 'Minha conta' })

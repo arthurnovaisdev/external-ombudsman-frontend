@@ -70,7 +70,7 @@ it('nega área administrativa a CLIENT e área do cliente a ADMIN', async () => 
 
   renderFlow()
   const adminUser = await enter('admin')
-  expect(await screen.findByRole('heading', { name: 'Área administrativa' })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
   await adminUser.click(screen.getByRole('link', { name: 'Abrir cliente' }))
   expect(screen.getByRole('heading', { name: 'Acesso negado' })).toBeInTheDocument()
 })

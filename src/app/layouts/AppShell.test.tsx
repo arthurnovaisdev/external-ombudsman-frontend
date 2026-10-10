@@ -50,7 +50,7 @@ it('mostra apenas a navegação CLIENT e marca a rota ativa', async () => {
 it('mostra apenas a navegação ADMIN e fecha o menu móvel com Escape', async () => {
   renderLayout()
   const user = await login('admin')
-  await screen.findByRole('heading', { name: 'Área administrativa' })
+  await screen.findByRole('heading', { name: 'Dashboard' })
   const menu = screen.getByRole('button', { name: 'Menu' })
   await user.click(menu)
   const nav = screen.getByRole('navigation', { name: 'Navegação administrativa' })
