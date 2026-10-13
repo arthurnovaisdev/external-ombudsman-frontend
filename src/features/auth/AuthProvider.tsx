@@ -13,6 +13,7 @@ interface AuthContextValue {
   user: UserResponseDTO | null
   profileLoading: boolean
   passwordChangedNotice: boolean
+  sessionExpiredNotice: boolean
   login: (credentials: LoginRequestDTO) => Promise<UserResponseDTO>
   changePassword: (body: ChangePasswordRequestDTO) => Promise<void>
   logout: () => void
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserResponseDTO | null>(null)
   const [profileLoading, setProfileLoading] = useState(false)
   const [passwordChangedNotice, setPasswordChangedNotice] = useState(false)
+  const [sessionExpiredNotice, setSessionExpiredNotice] = useState(false)
   const generation = useRef(0)
 
   const logout = useCallback(() => {
@@ -44,11 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryClient.clear()
   }, [queryClient])
 
-  useEffect(() => subscribeUnauthorized(logout), [logout])
+  useEffect(() => subscribeUnauthorized(() => { if (user) setSessionExpiredNotice(true); logout() }), [logout, user])
   useEffect(() => () => { memoryToken.clear(); queryClient.clear() }, [queryClient])
 
   const login = useCallback(async (credentials: LoginRequestDTO): Promise<UserResponseDTO> => {
     setPasswordChangedNotice(false)
+    setSessionExpiredNotice(false)
     logout()
     const attempt = ++generation.current
     const response = await authApi.login(credentials)
@@ -82,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout()
   }, [logout])
 
-  return <AuthContext.Provider value={{ user, profileLoading, passwordChangedNotice, login, changePassword, logout }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, profileLoading, passwordChangedNotice, sessionExpiredNotice, login, changePassword, logout }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth(): AuthContextValue {

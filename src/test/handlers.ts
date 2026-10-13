@@ -17,6 +17,7 @@ export const fixtures = {
     contactEmail: null, role: 'CLIENT', active: true, passwordChanged: true,
   } satisfies UserResponseDTO,
   category: { id: '22222222-2222-4222-8222-222222222222', name: 'Atendimento', active: true } satisfies CategoryResponseDTO,
+  inactiveCategory: { id: '55555555-5555-4555-8555-555555555555', name: 'Arquivo', active: false } satisfies CategoryResponseDTO,
   report: {
     protocol, category: 'Atendimento', description: 'Relato de teste', incidentDate: null,
     incidentLocation: null, createdAt: '2026-10-09T10:00:00Z', closedAt: null,
@@ -113,6 +114,10 @@ export const handlers: HttpHandler[] = [
   http.patch(`${origin}/api/users/:id/deactivate`, ({ request }) => deny(request, 'ADMIN') ?? new HttpResponse(null, { status: 204 })),
   http.patch(`${origin}/api/users/:id/activate`, ({ request }) => deny(request, 'ADMIN') ?? new HttpResponse(null, { status: 204 })),
   http.get(`${origin}/api/categories`, ({ request }) => deny(request) ?? HttpResponse.json(reportPage(request, [fixtures.category]))),
+  http.get(`${origin}/api/categories/admin`, ({ request }) => deny(request, 'ADMIN') ?? HttpResponse.json(reportPage(request, [fixtures.category, fixtures.inactiveCategory]))),
+  http.patch(`${origin}/api/categories/:id/deactivate`, ({ request, params }) =>
+    deny(request, 'ADMIN') ?? (params.id === fixtures.category.id || params.id === fixtures.inactiveCategory.id
+      ? new HttpResponse(null, { status: 204 }) : error(404, 'Categoria não encontrada.'))),
   http.post(`${origin}/api/categories`, async ({ request }) => {
     const denied = deny(request, 'ADMIN')
     if (denied) return denied

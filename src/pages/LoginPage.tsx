@@ -10,7 +10,7 @@ import styles from './SessionPages.module.css'
 interface Credentials { username: string; password: string }
 
 export function LoginPage() {
-  const { login, profileLoading, passwordChangedNotice } = useAuth()
+  const { login, profileLoading, passwordChangedNotice, sessionExpiredNotice } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [serverError, setServerError] = useState<string | null>(null)
@@ -33,6 +33,7 @@ export function LoginPage() {
         <h1>Entrar na Ouvidoria</h1>
         <p className={styles.intro}>Acesso exclusivo para clientes cadastrados e equipe autorizada.</p>
         {passwordChangedNotice && <Alert tone="success">Senha alterada. Entre novamente.</Alert>}
+        {sessionExpiredNotice && <Alert tone="error">Sua sessão expirou. Entre novamente.</Alert>}
         {location.state?.passwordReset === true && <Alert tone="success">Senha redefinida. Entre novamente.</Alert>}
         {serverError && <Alert tone="error">{serverError}</Alert>}
         {profileLoading && <div className={styles.profileLoading}><Skeleton width="1.25rem" height="1.25rem" label="Carregando perfil" /><span>Carregando seu perfil…</span></div>}

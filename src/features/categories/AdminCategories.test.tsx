@@ -8,10 +8,12 @@ import { AppRoutes } from '../../app/router/AppRoutes'
 import { AuthProvider } from '../auth/AuthProvider'
 import { memoryToken } from '../../shared/auth/memoryToken'
 import type { CategoryResponseDTO } from '../../shared/api/contracts'
+import { categoriesApi } from './api'
 import { fixtures } from '../../test/handlers'
 import { server } from '../../test/server'
 
 const url = 'http://localhost:8080/api/categories'
+const adminUrl = `${url}/admin`
 const timestamp = '2026-10-09T10:00:00'
 
 function paged(items: CategoryResponseDTO[], number: number, size: number) {
@@ -41,31 +43,42 @@ async function loginAndOpen() {
 
 afterEach(() => { memoryToken.clear(); vi.restoreAllMocks() })
 
-it('lista somente categorias ativas retornadas pela API com paginação e sem ações inexistentes', async () => {
+it('MSW permite a lista ativa ao CLIENT e restringe lista administrativa e PATCH ao ADMIN', async () => {
+  memoryToken.set('mock-jwt')
+  expect((await categoriesApi.list()).content).toEqual([fixtures.category])
+  await expect(categoriesApi.listAdmin()).rejects.toMatchObject({ status: 403 })
+  await expect(categoriesApi.deactivate(fixtures.category.id)).rejects.toMatchObject({ status: 403 })
+  memoryToken.set('mock-admin-jwt')
+  expect((await categoriesApi.listAdmin()).content).toEqual([fixtures.category, fixtures.inactiveCategory])
+  await expect(categoriesApi.deactivate(fixtures.category.id)).resolves.toBeUndefined()
+})
+
+it('lista categorias ativas e inativas na ordem e paginação da API administrativa', async () => {
   const categories = Array.from({ length: 21 }, (_, index): CategoryResponseDTO => ({
     id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`,
     name: `Categoria ${index + 1}`,
-    active: true,
+    active: index % 2 === 0,
   }))
   const calls: string[] = []
-  server.use(http.get(url, ({ request }) => {
+  server.use(http.get(adminUrl, ({ request }) => {
     const parsed = new URL(request.url)
     calls.push(parsed.search)
     return HttpResponse.json(paged(categories, Number(parsed.searchParams.get('page')), Number(parsed.searchParams.get('size'))))
   }))
   renderFlow()
   const user = await loginAndOpen()
-  expect(await screen.findByText('21 categorias ativas')).toBeInTheDocument()
+  expect(await screen.findByText('21 categorias no total')).toBeInTheDocument()
   expect(calls).toContain('?page=0&size=20')
-  expect(screen.getByText('Esta lista mostra apenas categorias ativas.')).toBeInTheDocument()
-  expect(screen.getAllByText('Ativa')).toHaveLength(20)
-  expect(screen.queryByRole('button', { name: /editar|ativar|desativar|excluir/i })).not.toBeInTheDocument()
-  expect(screen.queryByRole('heading', { name: /inativas/i })).not.toBeInTheDocument()
+  expect(screen.getAllByText('Ativa')).toHaveLength(10)
+  expect(screen.getAllByText('Inativa')).toHaveLength(10)
+  expect(screen.getAllByRole('button', { name: /^Desativar/ })).toHaveLength(10)
+  expect(screen.queryByRole('button', { name: /editar|^ativar|excluir/i })).not.toBeInTheDocument()
+  expect(within(screen.getByText('Categoria 2').closest('li')!).queryByRole('button', { name: /Desativar/ })).not.toBeInTheDocument()
   expect(screen.getByText('Página 1 de 2')).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Próxima' }))
   expect(await screen.findByText('Página 2 de 2')).toBeInTheDocument()
   await waitFor(() => expect(screen.getAllByText('Ativa')).toHaveLength(1))
-  expect(screen.getByText('Categoria 21')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Desativar Categoria 21' })).toBeInTheDocument()
   expect(calls).toContain('?page=1&size=20')
 })
 
@@ -122,9 +135,9 @@ it('valida nome vazio e acima de 100, e apresenta duplicidade do backend no camp
   expect(posts).toBe(1)
 })
 
-it('mostra erro, retry e vazio sem insinuar gerenciamento de inativas', async () => {
+it('mostra erro, retry e vazio da listagem administrativa', async () => {
   let attempts = 0
-  server.use(http.get(url, ({ request }) => {
+  server.use(http.get(adminUrl, ({ request }) => {
     attempts += 1
     if (attempts === 1) return HttpResponse.json({ status: 500, erro: 'Falha', timestamp }, { status: 500 })
     const parsed = new URL(request.url)
@@ -132,9 +145,85 @@ it('mostra erro, retry e vazio sem insinuar gerenciamento de inativas', async ()
   }))
   renderFlow()
   const user = await loginAndOpen()
-  expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível carregar as categorias ativas.')
+  expect(await screen.findByRole('alert')).toHaveTextContent('Falha')
   await user.click(screen.getByRole('button', { name: 'Tentar novamente' }))
-  expect(await screen.findByRole('heading', { name: 'Nenhuma categoria ativa' })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Nenhuma categoria cadastrada' })).toBeInTheDocument()
   expect(screen.queryByRole('navigation', { name: 'Paginação' })).not.toBeInTheDocument()
   expect(attempts).toBe(2)
+})
+
+it('confirma por teclado, espera o 204 e invalida todas as consultas de categorias', async () => {
+  let release: (() => void) | undefined
+  let patches = 0
+  let active = true
+  server.use(
+    http.get(adminUrl, ({ request }) => HttpResponse.json(paged([{ ...fixtures.category, active }], Number(new URL(request.url).searchParams.get('page')), 20))),
+    http.patch(`${url}/${fixtures.category.id}/deactivate`, () => {
+      patches += 1
+      return new Promise<Response>((resolve) => { release = () => { active = false; resolve(new HttpResponse(null, { status: 204 })) } })
+    }),
+  )
+  const client = renderFlow()
+  const user = await loginAndOpen()
+  client.setQueryData(['categories', 'report-form'], { pages: [{ content: [fixtures.category] }], pageParams: [0] })
+  const invalidate = vi.spyOn(client, 'invalidateQueries')
+  const action = await screen.findByRole('button', { name: 'Desativar Atendimento' })
+  action.focus()
+  await user.keyboard('{Enter}')
+  const dialog = screen.getByRole('dialog', { name: 'Desativar categoria?' })
+  expect(within(dialog).getByText(/deixará de estar disponível para novas manifestações/)).toHaveTextContent('continuará identificando manifestações antigas')
+  expect(within(dialog).getByRole('button', { name: 'Cancelar' })).toHaveFocus()
+  await user.keyboard('{Escape}')
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  expect(action).toHaveFocus()
+  expect(patches).toBe(0)
+  await user.click(action)
+  await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirmar desativação' }))
+  await waitFor(() => expect(patches).toBe(1))
+  expect(screen.getByText('Ativa')).toBeInTheDocument()
+  expect(screen.queryByText('Categoria Atendimento desativada.')).not.toBeInTheDocument()
+  expect(invalidate).not.toHaveBeenCalled()
+  await act(async () => { release?.() })
+  expect(await screen.findByText('Categoria Atendimento desativada.')).toBeInTheDocument()
+  await waitFor(() => expect(screen.getByText('Inativa')).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByText('Categoria Atendimento desativada.').closest('[tabindex]')).toHaveFocus())
+  expect(screen.queryByRole('button', { name: 'Desativar Atendimento' })).not.toBeInTheDocument()
+  expect(invalidate).toHaveBeenCalledWith({ queryKey: ['categories'] })
+  expect(client.getQueryState(['categories', 'report-form'])?.isInvalidated).toBe(true)
+})
+
+it.each([
+  [403, 'Você não tem permissão para desativar esta categoria.'],
+  [404, 'Categoria não encontrada. Atualize a lista e tente novamente.'],
+  [429, 'Muitas requisições. Aguarde antes de tentar novamente.'],
+  [500, 'Erro interno do servidor.'],
+])('mostra falha %i da desativação e preserva a categoria ativa', async (status, message) => {
+  server.use(http.patch(`${url}/${fixtures.category.id}/deactivate`, () => HttpResponse.json({ status, erro: message, timestamp }, { status })))
+  renderFlow()
+  const user = await loginAndOpen()
+  await user.click(await screen.findByRole('button', { name: 'Desativar Atendimento' }))
+  await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirmar desativação' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent(message)
+  expect(screen.getByText('Ativa')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Desativar Atendimento' })).toBeInTheDocument()
+})
+
+it('mostra falha de rede sem sucesso nem atualização definitiva', async () => {
+  server.use(http.patch(`${url}/${fixtures.category.id}/deactivate`, () => HttpResponse.error()))
+  renderFlow()
+  const user = await loginAndOpen()
+  await user.click(await screen.findByRole('button', { name: 'Desativar Atendimento' }))
+  await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirmar desativação' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível conectar ao servidor.')
+  expect(screen.getByText('Ativa')).toBeInTheDocument()
+})
+
+it('encerra a sessão e explica o 401 no login', async () => {
+  server.use(http.patch(`${url}/${fixtures.category.id}/deactivate`, () => HttpResponse.json({ status: 401, erro: 'Token expirado', timestamp }, { status: 401 })))
+  renderFlow()
+  const user = await loginAndOpen()
+  await user.click(await screen.findByRole('button', { name: 'Desativar Atendimento' }))
+  await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirmar desativação' }))
+  expect(await screen.findByRole('heading', { name: 'Entrar na Ouvidoria' })).toBeInTheDocument()
+  expect(screen.getByRole('alert')).toHaveTextContent('Sua sessão expirou. Entre novamente.')
 })
