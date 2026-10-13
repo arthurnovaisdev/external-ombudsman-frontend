@@ -29,7 +29,7 @@ describe('roteamento inicial', () => {
   })
 
   it('redireciona rota autenticada sem sessão para o login', () => {
-    renderAt('/account')
+    renderAt('/client')
     expect(screen.getByRole('heading', { name: 'Entrar na Ouvidoria' })).toBeInTheDocument()
   })
 })
